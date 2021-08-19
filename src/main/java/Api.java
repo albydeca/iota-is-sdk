@@ -1,3 +1,4 @@
+import com.google.common.hash.Hashing;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -7,14 +8,21 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.bitcoinj.core.Base58;
+import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.crypto.Signer;
+import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.json.JSONObject;
 
 
 import java.io.IOException;
-import java.math.BigInteger;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
+import java.util.Base64;
+
+import static org.bouncycastle.jcajce.spec.EdDSAParameterSpec.Ed25519;
 
 
 public class Api {
@@ -81,26 +89,41 @@ public class Api {
         client.close();
     }
 
-    public void sigantureNonce() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        String testOutput = null;
+    public void sigantureNonce() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, CryptoException {
 
-        Base58 b58 = new Base58();
-        //testOutput = new String(b58.decode(this.nonce), StandardCharsets.UTF_8);
-        //testOutput = String.format("%040x", new BigInteger(1, arg.getBytes(b58.decode(this.nonce))));
-        String hexnonceb58 = Hex.encodeHexString(b58.decode(this.nonce));
-        System.out.println(hexnonceb58);
-        String sha256nonce = DigestUtils.sha256Hex(hexnonceb58);
-        String hexsha256nonce = Hex.encodeHexString(sha256nonce.getBytes(StandardCharsets.UTF_8));
-        System.out.println(hexsha256nonce);
+        String prikey = Utils.toHex(Base64.getEncoder().encodeToString(Base58.decode(this.private_key)));    // Decode a base58 key and encode it as hex key
 
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("Ed25519");
-        KeyPair kp = kpg.generateKeyPair();
+        String sha256hex = Hashing.sha256()     // Hash a nonce with SHA-256 (guava)
+                .hashString(this.nonce, StandardCharsets.UTF_8)
+                .toString();
+        String prova1 = Utils.toHex(sha256hex);
 
-        byte[] msg = hexsha256nonce.getBytes(StandardCharsets.UTF_8);
+        //https://stackoverflow.com/questions/53921655/rebuild-of-ed25519-keys-with-bouncy-castle-java
+        Ed25519PrivateKeyParameters privateKey = new Ed25519PrivateKeyParameters(prikey.getBytes(StandardCharsets.UTF_8), 0);  // Encode in PrivateKey
+        Signer signer = new Ed25519Signer();    // Sign a nonce using the private key
+        signer.init(true, privateKey);
+        signer.update(prova1.getBytes(StandardCharsets.UTF_8), 0, prova1.length());
+        byte[] signature = signer.generateSignature();
 
-        Signer signer = new Ed25519Signer();
+        String prova = Utils.asHex(signature);
+        System.out.println(prova + " lunghezza: " + prova.length());
 
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/authentication/prove-ownership/" + this.did_id + "?" + this.api_key);
+        String json_in = "{\n" +
+                "  \"signedNonce\": \"" + prova + "\"\n" +
+                "}";
 
+        StringEntity entity = new StringEntity(json_in);
+        httpPost.setEntity(entity);
+        httpPost.setHeader("Accept", "application/json");
+        httpPost.setHeader("Content-type", "application/json");
+
+        CloseableHttpResponse response = client.execute(httpPost);
+
+        JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+        System.out.println(respons);
+        client.close();
 
     }
 
