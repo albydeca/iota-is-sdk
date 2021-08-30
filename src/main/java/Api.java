@@ -1,5 +1,3 @@
-import com.google.common.hash.Hashing;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -12,17 +10,14 @@ import org.bitcoinj.core.Base58;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.json.JSONObject;
 
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.*;
-import java.util.Base64;
-
-import static org.bouncycastle.jcajce.spec.EdDSAParameterSpec.Ed25519;
 
 
 public class Api {
@@ -36,7 +31,7 @@ public class Api {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/identities/create?" + api_key);
 
-        String json_in = "{\n" +
+        String json_in = "{\n" +                    //TODO: Convert into json and fix parameters
                 "  \"username\": \"test\",\n" +
                 "  \"claim\": {\n" +
                 "    \"type\": \"Device\",\n" +
@@ -89,30 +84,34 @@ public class Api {
         client.close();
     }
 
-    public void sigantureNonce() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, CryptoException {
+    public void sigantureNonce() throws IOException, CryptoException {
 
-        String prikey = Utils.toHex(Base64.getEncoder().encodeToString(Base58.decode(this.private_key)));    // Decode a base58 key and encode it as hex key
+        byte[] b58key = Base58.decode(this.private_key);    // Decode a base58 key and encode it as hex key
+        String b58key_hex = DatatypeConverter.printHexBinary(b58key).toLowerCase();
+        byte[] convert_key = DatatypeConverter.parseHexBinary(b58key_hex);
 
-        String sha256hex = Hashing.sha256()     // Hash a nonce with SHA-256 (guava)
-                .hashString(this.nonce, StandardCharsets.UTF_8)
-                .toString();
-        String prova1 = Utils.toHex(sha256hex);
+        String hash_nonce_hex = DigestUtils.sha256Hex(this.nonce); // Hash a nonce with SHA-256 (apache_commons)
+        byte[] convert_nonce = DatatypeConverter.parseHexBinary(hash_nonce_hex);
+
 
         //https://stackoverflow.com/questions/53921655/rebuild-of-ed25519-keys-with-bouncy-castle-java
-        Ed25519PrivateKeyParameters privateKey = new Ed25519PrivateKeyParameters(prikey.getBytes(StandardCharsets.UTF_8), 0);  // Encode in PrivateKey
+        Ed25519PrivateKeyParameters privateKey = new Ed25519PrivateKeyParameters(convert_key, 0);  // Encode in PrivateKey
         Signer signer = new Ed25519Signer();    // Sign a nonce using the private key
         signer.init(true, privateKey);
-        signer.update(prova1.getBytes(StandardCharsets.UTF_8), 0, prova1.length());
+        signer.update(convert_nonce, 0, convert_nonce.length);
         byte[] signature = signer.generateSignature();
+        System.out.println("Length Signature: " + signature.length);
 
-        String prova = Utils.asHex(signature);
-        System.out.println(prova + " lunghezza: " + prova.length());
+        //https://stackoverflow.com/questions/6625776/java-security-invalidkeyexception-key-length-not-128-192-256-bits
+        String sign = DatatypeConverter.printHexBinary(signature).toLowerCase();
+        System.out.println("Sign: " + sign + " Length: " + sign.length());
 
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/authentication/prove-ownership/" + this.did_id + "?" + this.api_key);
-        String json_in = "{\n" +
-                "  \"signedNonce\": \"" + prova + "\"\n" +
+        String json_in = "{\n" +            //TODO: Convert into json
+                "  \"signedNonce\": \"" + sign + "\"\n" +
                 "}";
+        System.out.println(json_in);
 
         StringEntity entity = new StringEntity(json_in);
         httpPost.setEntity(entity);
@@ -125,6 +124,16 @@ public class Api {
         System.out.println(respons);
         client.close();
 
-    }
+        byte[] b58key_primary = Base58.decode(this.public_key);
+        String b58key_primary_hex = DatatypeConverter.printHexBinary(b58key_primary).toLowerCase();
+        byte[] convert_primarykey = DatatypeConverter.parseHexBinary(b58key_primary_hex);
 
+        Ed25519PublicKeyParameters primaryKeyVerify = new Ed25519PublicKeyParameters(convert_primarykey, 0);
+        Signer verifier = new Ed25519Signer();
+        verifier.init(false, primaryKeyVerify);
+        verifier.update(convert_nonce, 0, convert_nonce.length);
+        boolean verified = verifier.verifySignature(signature);
+
+        System.out.println("Verify Signature: " + verified);
+    }
 }
