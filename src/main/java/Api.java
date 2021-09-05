@@ -13,6 +13,7 @@ import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 
@@ -191,6 +192,20 @@ public class Api {
 
         JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
         System.out.println(respons);
+    }
+
+    public void getDataFromChannel() throws IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet("https://ensuresec.solutions.iota.org/api/v0.1/channels/logs/" + this.channel_address + "?limit=5&asc=true" + "&" + this.api_key);
+
+        httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
+        httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
+
+        CloseableHttpResponse response = client.execute(httpGet);
+
+        JSONArray respons = new JSONArray(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+        System.out.println("Message from channel: " + respons.getJSONObject(0).getJSONObject("channelLog").getJSONObject("payload"));
+        client.close();
 
     }
 }
