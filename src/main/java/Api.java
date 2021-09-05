@@ -1,4 +1,5 @@
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -16,7 +17,9 @@ import org.json.JSONObject;
 
 
 import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 
@@ -26,6 +29,7 @@ public class Api {
     private String public_key = null;
     private String did_id = null;
     private String nonce = null;
+    private String jwt = null;
 
     public void createDID() throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
@@ -100,18 +104,15 @@ public class Api {
         signer.init(true, privateKey);
         signer.update(convert_nonce, 0, convert_nonce.length);
         byte[] signature = signer.generateSignature();
-        System.out.println("Length Signature: " + signature.length);
 
         //https://stackoverflow.com/questions/6625776/java-security-invalidkeyexception-key-length-not-128-192-256-bits
         String sign = DatatypeConverter.printHexBinary(signature).toLowerCase();
-        System.out.println("Sign: " + sign + " Length: " + sign.length());
 
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/authentication/prove-ownership/" + this.did_id + "?" + this.api_key);
         String json_in = "{\n" +            //TODO: Convert into json
                 "  \"signedNonce\": \"" + sign + "\"\n" +
                 "}";
-        System.out.println(json_in);
 
         StringEntity entity = new StringEntity(json_in);
         httpPost.setEntity(entity);
@@ -121,9 +122,11 @@ public class Api {
         CloseableHttpResponse response = client.execute(httpPost);
 
         JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        System.out.println(respons);
+        this.jwt = respons.getString("jwt");
+        System.out.println("JWT: " + this.jwt);
         client.close();
 
+        // Verify Signature
         byte[] b58key_primary = Base58.decode(this.public_key);
         String b58key_primary_hex = DatatypeConverter.printHexBinary(b58key_primary).toLowerCase();
         byte[] convert_primarykey = DatatypeConverter.parseHexBinary(b58key_primary_hex);
@@ -135,5 +138,35 @@ public class Api {
         boolean verified = verifier.verifySignature(signature);
 
         System.out.println("Verify Signature: " + verified);
+    }
+
+    public void createChannel() throws IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/channels/create" + "?" + this.api_key);
+
+        String json_in = "{\n" +        //TODO: Convert into json
+                "  \"topics\": [\n" +
+                "    {\n" +
+                "      \"type\": \"example-channel-data\",\n" +
+                "      \"source\": \"channel-creator\"\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"encrypted\": false\n" +
+                "}";
+
+        StringEntity entity = new StringEntity(json_in);
+        httpPost.setEntity(entity);
+        httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE,"application/json");
+
+        CloseableHttpResponse response = client.execute(httpPost);
+
+        JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+        System.out.println(respons);
+    }
+
+    public static void writeDataOnChannel() {
+        
     }
 }

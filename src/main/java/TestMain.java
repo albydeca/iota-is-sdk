@@ -13,6 +13,7 @@ public class TestMain {
             test.createDID();
             test.createNonce();
             test.sigantureNonce();
+            test.createChannel();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (CryptoException e) {
