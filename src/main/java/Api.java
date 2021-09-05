@@ -30,6 +30,7 @@ public class Api {
     private String did_id = null;
     private String nonce = null;
     private String jwt = null;
+    private String channel_address = null;
 
     public void createDID() throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
@@ -163,10 +164,33 @@ public class Api {
         CloseableHttpResponse response = client.execute(httpPost);
 
         JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        System.out.println(respons);
+        this.channel_address = respons.getString("channelAddress");
+        System.out.println("Channel Address: " + this.channel_address);
     }
 
-    public static void writeDataOnChannel() {
-        
+    public void writeDataOnChannel() throws IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/channels/logs/" + this.channel_address + "?" + this.api_key);
+
+        String json_in = "{\n" +            //TODO: Convert into json
+                "  \"type\": \"example-channel-data\",\n" +
+                "  \"created\": \"2021-07-23T05:25:42.325Z\",\n" +
+                "  \"metadata\": \"example-meta-data\",\n" +
+                "  \"payload\": {\n" +
+                "    \"example\": 1\n" +
+                "  }\n" +
+                "}";
+
+        StringEntity entity = new StringEntity(json_in);
+        httpPost.setEntity(entity);
+        httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE,"application/json");
+
+        CloseableHttpResponse response = client.execute(httpPost);
+
+        JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+        System.out.println(respons);
+
     }
 }

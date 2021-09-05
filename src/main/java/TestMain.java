@@ -14,6 +14,7 @@ public class TestMain {
             test.createNonce();
             test.sigantureNonce();
             test.createChannel();
+            test.writeDataOnChannel();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (CryptoException e) {
