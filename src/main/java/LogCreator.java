@@ -1,4 +1,3 @@
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -7,17 +6,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.bitcoinj.core.Base58;
 import org.bouncycastle.crypto.CryptoException;
-import org.bouncycastle.crypto.Signer;
-import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
-import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
-import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
@@ -45,8 +36,6 @@ public class LogCreator {
             this.nonce = did.createNonce(this.did_id);
             this.jwt = did.sigantureNonce(this.private_key, this.public_key, this.nonce, this.did_id);
             createChannel();
-            writeDataOnChannel();
-            getDataFromChannel();
         } catch (IOException | CryptoException e) {
             e.printStackTrace();
         }
@@ -56,17 +45,12 @@ public class LogCreator {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/channels/create" + "?" + this.api_key);
 
-        String json_in = "{\n" +        //TODO: Convert into json
-                "  \"topics\": [\n" +
-                "    {\n" +
-                "      \"type\": \"example-channel-data\",\n" +
-                "      \"source\": \"channel-creator\"\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"encrypted\": false\n" +
-                "}";
+        String json = new JSONObject()
+                .put("topics", new JSONArray().put(new JSONObject().put("type", "example-channel-data").put("source", "channel-creator")))
+                .put("encrypted", "false")
+                .toString();
 
-        StringEntity entity = new StringEntity(json_in);
+        StringEntity entity = new StringEntity(json);
         httpPost.setEntity(entity);
         httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
         httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
@@ -77,23 +61,21 @@ public class LogCreator {
         JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
         this.channel_address = respons.getString("channelAddress");
         info.setChannel_address(this.channel_address);
-        System.out.println("Channel Address created: " + this.channel_address);
+        System.out.println("Channel successfully created: " + this.channel_address);
     }
 
     public void writeDataOnChannel() throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/channels/logs/" + this.channel_address + "?" + this.api_key);
 
-        String json_in = "{\n" +            //TODO: Convert into json
-                "  \"type\": \"example-channel-data\",\n" +
-                "  \"created\": \"2021-07-23T05:25:42.325Z\",\n" +
-                "  \"metadata\": \"example-meta-data\",\n" +
-                "  \"payload\": {\n" +
-                "    \"example\": 1\n" +
-                "  }\n" +
-                "}";
+        String json = new JSONObject()
+                .put("type", "example-channel-data")
+                .put("created", "2021-07-23T05:25:42.325Z")
+                .put("metadata", "example-meta-data")
+                .put("payload", new JSONObject().put("prova", "999999999999"))
+                .toString();
 
-        StringEntity entity = new StringEntity(json_in);
+        StringEntity entity = new StringEntity(json);
         httpPost.setEntity(entity);
         httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
         httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
@@ -102,8 +84,7 @@ public class LogCreator {
         CloseableHttpResponse response = client.execute(httpPost);
 
         JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        System.out.println("Message send to channel: {example:1}");
-        //System.out.println(respons);
+        System.out.println("Message send to channel: {prova:999999999999}");
     }
 
     public void getDataFromChannel() throws IOException {
@@ -118,6 +99,39 @@ public class LogCreator {
         JSONArray respons = new JSONArray(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
         System.out.println("Message from channel: " + respons.getJSONObject(0).getJSONObject("channelLog").getJSONObject("payload"));
         client.close();
-
     }
+
+    public void getAllSubscriptions() throws IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet("https://ensuresec.solutions.iota.org/api/v0.1/subscriptions/" + this.channel_address + "?is-authorized=false" + "&" + this.api_key);
+
+        httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
+        httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
+
+        CloseableHttpResponse response = client.execute(httpGet);
+
+        JSONArray respons = new JSONArray(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+        System.out.println(respons);
+        client.close();
+    }
+
+    public void authorizedSubscriptions() throws IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/subscriptions/authorize/" + this.channel_address + "?" + this.api_key);
+
+        String json = new JSONObject().put("subscriptionLink", info.getSubscriptionLink())
+                .toString();
+
+        StringEntity entity = new StringEntity(json);
+        httpPost.setEntity(entity);
+        httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE,"application/json");
+
+        CloseableHttpResponse response = client.execute(httpPost);
+
+        JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+        System.out.println("Authorized entry: " + respons.getString("keyloadLink"));
+    }
+
 }
