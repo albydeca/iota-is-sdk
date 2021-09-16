@@ -1,4 +1,6 @@
+import com.github.javafaker.Faker;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -14,7 +16,6 @@ import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,24 +29,43 @@ public class DID {
     public String[] createDID(String who) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/identities/create?" + api_key);
+        String json;
 
-        String json = new JSONObject()
-                .put("username", "test")
-                .put("claim", new JSONObject().put("type", "Device").put("category", new JSONArray().put("sensor"))
+        Faker faker1 = new Faker();
+        String jsonDevice = new JSONObject()
+                .put("username", faker1.name())
+                .put("claim", new JSONObject().put("type", "Device").put("category", new JSONArray().put("actuator"))
                                                                     .put("controlledProperty", new JSONArray().put("fillingLevel").put("temperature"))
-                                                                    .put("controlledAsset", new JSONArray().put("wastecontainer-Osuna-100"))
+                                                                    .put("firmwareVersion", "number")
+                                                                    .put("hardwareVersion", "number")
                                                                     .put("ipAddress", new JSONArray().put("192.14.56.78"))
-                                                                    .put("mcc", "214")
-                                                                    .put("mnc", "07")
                                                                     .put("serialNumber", "9845A")
-                                                                    .put("refDeviceModel", "myDevice-wastecontainer-sensor-345")
-                                                                    .put("dateFirstUsed", "2014-09-11T11:00:00Z")
-                                                                    .put("owner", new JSONArray().put("did:iota:CtPnfQqSZBmZEe5A5iNZzJ6pkCqUxtsFsErNfA3CeHpY")))
+                                                                    .put("dateFirstUsed", "2014-09-11T11:00:00Z"))
                                                                     .toString();
+
+        Faker faker2 = new Faker();
+        String jsonOrganization = new JSONObject()
+                .put("username", faker2.name())
+                .put("claim", new JSONObject().put("type", "Organization").put("name", "randomName"))
+                                                                            .put("alternateName", "randomName")
+                                                                            .put("url", "www.random.com")
+                                                                            .put("address", faker2.address())
+                                                                            .put("email", "organization@test.com")
+                                                                            .put("faxNumber", "1234567890")
+                                                                            .put("telephone", "1234567890")
+                                                                            .toString();
+
+        if(who.equals("LogCreator")) {
+            json = jsonOrganization;
+        }
+        else {
+            json = jsonDevice;
+        }
+
         StringEntity entity = new StringEntity(json);
         httpPost.setEntity(entity);
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
+        httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
         CloseableHttpResponse response = client.execute(httpPost);
 
@@ -96,8 +116,8 @@ public class DID {
 
         StringEntity entity = new StringEntity(json);
         httpPost.setEntity(entity);
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
+        httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
         CloseableHttpResponse response = client.execute(httpPost);
 

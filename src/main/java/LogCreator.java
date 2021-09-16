@@ -22,8 +22,6 @@ public class LogCreator {
     private String jwt = null;
     public String channel_address = null;
     Utils info = new Utils();
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_RESET = "\u001B[0m";
 
     {
         DID did = new DID();

@@ -9,7 +9,6 @@ import org.apache.http.util.EntityUtils;
 import org.bouncycastle.crypto.CryptoException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -41,7 +40,6 @@ public class LogAuditor {
             e.printStackTrace();
         }
     }
-
 
     public void requestSubscription() throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
