@@ -45,7 +45,7 @@ public class LogCreator {
 
         String json = new JSONObject()
                 .put("topics", new JSONArray().put(new JSONObject().put("type", "example-channel-data").put("source", "channel-creator")))
-                .put("encrypted", "false")
+                .put("encrypted", "true")
                 .toString();
 
         StringEntity entity = new StringEntity(json);
@@ -81,7 +81,7 @@ public class LogCreator {
 
         CloseableHttpResponse response = client.execute(httpPost);
 
-        JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+        //JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
         System.out.println("Message send to channel: {prova:999999999999}");
     }
 
@@ -99,7 +99,7 @@ public class LogCreator {
         client.close();
     }
 
-    public void getAllSubscriptions() throws IOException {
+    public String getAllSubscriptions() throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet("https://ensuresec.solutions.iota.org/api/v0.1/subscriptions/" + this.channel_address + "?is-authorized=false" + "&" + this.api_key);
 
@@ -109,15 +109,17 @@ public class LogCreator {
         CloseableHttpResponse response = client.execute(httpGet);
 
         JSONArray respons = new JSONArray(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        System.out.println(respons);
+        String request = respons.getJSONObject(0).getString("subscriptionLink");
+        System.out.println("SubscriptionLink: " + request);
         client.close();
+        return respons.getJSONObject(0).getString("subscriptionLink");
     }
 
-    public void authorizedSubscriptions() throws IOException {
+    public void authorizedSubscriptions(String subscriptionLink) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/subscriptions/authorize/" + this.channel_address + "?" + this.api_key);
 
-        String json = new JSONObject().put("subscriptionLink", info.getSubscriptionLink())
+        String json = new JSONObject().put("subscriptionLink", subscriptionLink)
                 .toString();
 
         StringEntity entity = new StringEntity(json);

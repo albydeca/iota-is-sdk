@@ -7,7 +7,8 @@ public class TestMain {
         LogCreator creator = new LogCreator();
         LogAuditor auditor = new LogAuditor();
         System.out.println("-------------------------- " + ANSI_GREEN +  "LogCreator" + ANSI_RESET + " --------------------------");
-        creator.authorizedSubscriptions();
+        String subscriptionLink = creator.getAllSubscriptions();
+        creator.authorizedSubscriptions(subscriptionLink);
         creator.writeDataOnChannel();
         System.out.println("-------------------------- " + ANSI_GREEN +  "LogAuditor" + ANSI_RESET + " --------------------------");
         auditor.getDataFromChannel();

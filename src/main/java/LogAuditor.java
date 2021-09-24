@@ -60,7 +60,7 @@ public class LogAuditor {
         JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
         this.seed = respons.getString("seed");
         this.subscriptionLink = respons.getString("subscriptionLink");
-        info.setSubscriptionLink(this.subscriptionLink);
+        System.out.println("SubscriptionLink: " + this.subscriptionLink);
     }
 
     public void getDataFromChannel() throws IOException {
