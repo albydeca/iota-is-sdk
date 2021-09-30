@@ -70,7 +70,7 @@ public class LogCreator {
                 .put("type", "example-channel-data")
                 .put("created", "2021-07-23T05:25:42.325Z")
                 .put("metadata", "example-meta-data")
-                .put("payload", new JSONObject().put("prova", "999999999999"))
+                .put("payload", new JSONObject().put("Test", "1234567890"))
                 .toString();
 
         StringEntity entity = new StringEntity(json);
@@ -82,7 +82,7 @@ public class LogCreator {
         CloseableHttpResponse response = client.execute(httpPost);
 
         //JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        System.out.println("Message send to channel: {prova:999999999999}");
+        System.out.println("Message send to channel: {Test:1234567890}");
     }
 
     public void getDataFromChannel() throws IOException {

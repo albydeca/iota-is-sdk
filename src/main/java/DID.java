@@ -16,7 +16,13 @@ import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import javax.xml.bind.DatatypeConverter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -27,54 +33,81 @@ public class DID {
     public static final String ANSI_GREEN = "\u001B[32m";
 
     public String[] createDID(String who) throws IOException {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/identities/create?" + api_key);
-        String json;
+        File myObj = new File(who + ".json");
+        if(!myObj.exists()) {
+            System.out.println("-------------------------- " + ANSI_GREEN +  who + ANSI_RESET + " --------------------------");
+            System.out.println(who + " data does not exist!\nRequest in progress...");
+            CloseableHttpClient client = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/identities/create?" + api_key);
+            String json;
 
-        Faker faker1 = new Faker();
-        String jsonDevice = new JSONObject()
-                .put("username", faker1.name())
-                .put("claim", new JSONObject().put("type", "Device").put("category", new JSONArray().put("actuator"))
-                                                                    .put("controlledProperty", new JSONArray().put("fillingLevel").put("temperature"))
-                                                                    .put("firmwareVersion", "number")
-                                                                    .put("hardwareVersion", "number")
-                                                                    .put("ipAddress", new JSONArray().put("192.14.56.78"))
-                                                                    .put("serialNumber", "9845A")
-                                                                    .put("dateFirstUsed", "2014-09-11T11:00:00Z"))
-                                                                    .toString();
+            Faker faker1 = new Faker();
+            String jsonDevice = new JSONObject()
+                    .put("username", faker1.name())
+                    .put("claim", new JSONObject().put("type", "Device").put("category", new JSONArray().put("actuator"))
+                            .put("controlledProperty", new JSONArray().put("fillingLevel").put("temperature"))
+                            .put("firmwareVersion", "number")
+                            .put("hardwareVersion", "number")
+                            .put("ipAddress", new JSONArray().put("192.14.56.78"))
+                            .put("serialNumber", "9845A")
+                            .put("dateFirstUsed", "2014-09-11T11:00:00Z"))
+                    .toString();
 
-        Faker faker2 = new Faker();
-        String jsonOrganization = new JSONObject()
-                .put("username", faker2.name())
-                .put("claim", new JSONObject().put("type", "Organization").put("name", "randomName"))
-                                                                            .put("alternateName", "randomName")
-                                                                            .put("url", "www.random.com")
-                                                                            .put("address", faker2.address())
-                                                                            .put("email", "organization@test.com")
-                                                                            .put("faxNumber", "1234567890")
-                                                                            .put("telephone", "1234567890")
-                                                                            .toString();
+            Faker faker2 = new Faker();
+            String jsonOrganization = new JSONObject()
+                    .put("username", faker2.name())
+                    .put("claim", new JSONObject().put("type", "Organization").put("name", "randomName"))
+                    .put("alternateName", "randomName")
+                    .put("url", "www.random.com")
+                    .put("address", faker2.address())
+                    .put("email", "organization@test.com")
+                    .put("faxNumber", "1234567890")
+                    .put("telephone", "1234567890")
+                    .toString();
 
-        if(who.equals("LogCreator")) {
-            json = jsonOrganization;
+            if(who.equals("LogCreator")) {
+                json = jsonOrganization;
+            }
+            else {
+                json = jsonDevice;
+            }
+
+            StringEntity entity = new StringEntity(json);
+            httpPost.setEntity(entity);
+            httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
+            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+
+            CloseableHttpResponse response = client.execute(httpPost);
+
+            JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
+            System.out.println(ANSI_RED + "DID ID: " + ANSI_RESET +  respons.getJSONObject("doc").getString("id") + "\n" + ANSI_RED + "Private Key: " + ANSI_RESET + respons.getJSONObject("key").getString("secret") + "\n" + ANSI_RED + "Public Key: " + ANSI_RESET + respons.getJSONObject("key").getString("public"));
+            client.close();
+            String[] result = new String[] {respons.getJSONObject("key").getString("secret"), respons.getJSONObject("key").getString("public"), respons.getJSONObject("doc").getString("id")};
+
+            JSONObject data = new JSONObject();
+            data.put("PrivateKey", respons.getJSONObject("key").getString("secret"));
+            data.put("PublicKey", respons.getJSONObject("key").getString("public"));
+            data.put("ID", respons.getJSONObject("doc").getString("id"));
+
+            FileWriter myWriter = new FileWriter(who + ".json");
+            myWriter.write(data.toString());
+            myWriter.close();
+            System.out.println("Successfully wrote to the file json.");
+            return result;
         }
         else {
-            json = jsonDevice;
+            JSONParser jsonParser = new JSONParser();
+            org.json.simple.JSONObject jsonObject = null;
+            try {
+                jsonObject = (org.json.simple.JSONObject) jsonParser.parse(new FileReader(who + ".json"));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            System.out.println("-------------------------- " + ANSI_GREEN +  who + ANSI_RESET + " --------------------------");
+            System.out.println(who + " data already exists!");
+            System.out.println(ANSI_RED + "DID ID: " + ANSI_RESET +  (String) jsonObject.get("ID") + "\n" + ANSI_RED + "Private Key: " + ANSI_RESET + (String) jsonObject.get("PrivateKey") + "\n" + ANSI_RED + "Public Key: " + ANSI_RESET + (String) jsonObject.get("PublicKey"));
+            return new String[] {(String) jsonObject.get("PrivateKey"), (String) jsonObject.get("PublicKey"), (String) jsonObject.get("ID")};
         }
-
-        StringEntity entity = new StringEntity(json);
-        httpPost.setEntity(entity);
-        httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
-        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-
-        CloseableHttpResponse response = client.execute(httpPost);
-
-        JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        System.out.println("-------------------------- " + ANSI_GREEN +  who + ANSI_RESET + " --------------------------");
-        System.out.println(ANSI_RED + "DID ID: " + ANSI_RESET +  respons.getJSONObject("doc").getString("id") + "\n" + ANSI_RED + "Private Key: " + ANSI_RESET + respons.getJSONObject("key").getString("secret") + "\n" + ANSI_RED + "Public Key: " + ANSI_RESET + respons.getJSONObject("key").getString("public"));
-        client.close();
-        String[] result = new String[] {respons.getJSONObject("key").getString("secret"), respons.getJSONObject("key").getString("public"), respons.getJSONObject("doc").getString("id")};
-        return result;
     }
 
     public String createNonce(String did_id) throws IOException {
