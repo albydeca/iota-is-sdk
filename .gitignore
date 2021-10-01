@@ -1,5 +1,5 @@
-<<<<<<< Updated upstream
-target/
+target/*
+*.DS_STORE
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -11,7 +11,4 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
 .idea/
-=======
-
 src/main/java/TestFile.java
->>>>>>> Stashed changes
