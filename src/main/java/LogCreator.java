@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
 
 public class LogCreator {
@@ -62,15 +63,16 @@ public class LogCreator {
         System.out.println("Channel successfully created: " + this.channel_address);
     }
 
-    public void writeDataOnChannel() throws IOException {
+    public void writeDataOnChannel(JSONObject input) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/channels/logs/" + this.channel_address + "?" + this.api_key);
 
+        LocalDateTime myObj = LocalDateTime.now();
         String json = new JSONObject()
                 .put("type", "example-channel-data")
                 .put("created", "2021-07-23T05:25:42.325Z")
                 .put("metadata", "example-meta-data")
-                .put("payload", new JSONObject().put("Test", "1234567890"))
+                .put("payload", input)
                 .toString();
 
         StringEntity entity = new StringEntity(json);
@@ -82,7 +84,7 @@ public class LogCreator {
         CloseableHttpResponse response = client.execute(httpPost);
 
         //JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        System.out.println("Message send to channel: {Test:1234567890}");
+        System.out.println("Message send to channel: " + input);
     }
 
     public void getDataFromChannel() throws IOException {

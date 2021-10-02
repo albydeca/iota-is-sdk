@@ -1,3 +1,5 @@
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 public class TestMain {
@@ -9,7 +11,9 @@ public class TestMain {
         System.out.println("-------------------------- " + ANSI_GREEN +  "LogCreator" + ANSI_RESET + " --------------------------");
         String subscriptionLink = creator.getAllSubscriptions();
         creator.authorizedSubscriptions(subscriptionLink);
-        creator.writeDataOnChannel();
+        JSONObject data = new JSONObject();
+        data.put("Test1", "1").put("Test2", "2").put("Test3", "3");
+        creator.writeDataOnChannel(data);
         System.out.println("-------------------------- " + ANSI_GREEN +  "LogAuditor" + ANSI_RESET + " --------------------------");
         auditor.getDataFromChannel();
     }

@@ -74,6 +74,7 @@ public class LogAuditor {
 
         JSONArray respons = new JSONArray(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
         System.out.println("Message from channel: " + respons.getJSONObject(0).getJSONObject("channelLog").getJSONObject("payload"));
+        //System.out.println(respons);
         client.close();
     }
 
