@@ -14,6 +14,13 @@ public class TestMain {
         JSONObject data = new JSONObject();
         data.put("Test1", "1").put("Test2", "2").put("Test3", "3");
         creator.writeDataOnChannel(data);
+        creator.writeDataOnChannel(data);
+        creator.writeDataOnChannel(data);
+        creator.writeDataOnChannel(data);
+        creator.writeDataOnChannel(data);
+        creator.writeDataOnChannel(data);
+        creator.writeDataOnChannel(data);
+        creator.writeDataOnChannel(data);
         System.out.println("-------------------------- " + ANSI_GREEN +  "LogAuditor" + ANSI_RESET + " --------------------------");
         auditor.getDataFromChannel();
     }

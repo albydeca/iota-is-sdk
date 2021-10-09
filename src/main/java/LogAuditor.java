@@ -11,6 +11,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class LogAuditor {
     private String channel_address = null;
@@ -64,8 +66,18 @@ public class LogAuditor {
     }
 
     public void getDataFromChannel() throws IOException {
+        Calendar calendar = Calendar.getInstance(); // this would default to now
+        calendar.add(Calendar.DAY_OF_MONTH, -3);
+        String startDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(calendar.getTime());
+        String endDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(Calendar.getInstance().getTime());
+        String startDateQuery = startDate.replaceAll(":", "%3A").replaceAll("\\+", "%2B");
+        String endDateQuery = endDate.replaceAll(":", "%3A").replaceAll("\\+", "%2B");
+
+        System.out.println("startDate: " + startDate + "\nendDate: " + endDate);
+        System.out.println("startDateQuery: " + startDateQuery + "\nendDateQuery: " + endDateQuery);
+
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet("https://ensuresec.solutions.iota.org/api/v0.1/channels/logs/" + this.channel_address + "?limit=5&asc=true" + "&" + this.api_key);
+        HttpGet httpGet = new HttpGet("https://ensuresec.solutions.iota.org/api/v0.1/channels/logs/" + this.channel_address + "?limit=5&asc=true" + "&start-date=" + startDateQuery + "&end-date=" + endDateQuery + "&" + this.api_key);
 
         httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
         httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
@@ -73,8 +85,8 @@ public class LogAuditor {
         CloseableHttpResponse response = client.execute(httpGet);
 
         JSONArray respons = new JSONArray(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        System.out.println("Message from channel: " + respons.getJSONObject(0).getJSONObject("channelLog").getJSONObject("payload"));
-        //System.out.println(respons);
+        System.out.println(respons);
+        System.out.println("Message from channel: " + respons.getJSONObject(0).getJSONObject("log").getJSONObject("payload"));
         client.close();
     }
 
