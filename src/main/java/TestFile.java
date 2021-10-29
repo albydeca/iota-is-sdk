@@ -12,10 +12,10 @@ public class TestFile {
     public static void main(String args[]) {
         File myObj = new File("test.json");
         if(myObj.exists()) {
-            System.out.println("Esiste");
+            System.out.println("Exists");
         }
         else {
-            System.out.println("Non esiste");
+            System.out.println("Does not exist");
         }
         try {
             if (myObj.createNewFile()) {
@@ -39,17 +39,6 @@ public class TestFile {
             String value = (String) jsonObject.get("PublicKey");
             System.out.println("TEST: " + value);
 
-
-            /*
-            myObj = new File("test.txt");
-            Scanner myReader = new Scanner(myObj);
-            while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-                System.out.println(data);
-            }
-            myReader.close();
-
-             */
 
         } catch (IOException e) {
             System.out.println("An error occurred.");

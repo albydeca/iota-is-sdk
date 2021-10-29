@@ -1,13 +1,5 @@
 import com.github.javafaker.Faker;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.bitcoinj.core.Base58;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Signer;
@@ -24,25 +16,20 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public class DID {
-    private final String api_key = "api-key=94F5BA49-12B6-4E45-A487-BF91C442276D";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_GREEN = "\u001B[32m";
+
 
     public String[] createDID(String who) throws IOException {
         File myObj = new File(who + ".json");
         if(!myObj.exists()) {
-            System.out.println("-------------------------- " + ANSI_GREEN +  who + ANSI_RESET + " --------------------------");
+            System.out.println("-------------------------- " + Utils.ANSI_GREEN +  who + Utils.ANSI_RESET + " --------------------------");
             System.out.println(who + " data does not exist!\nRequest in progress...");
-            CloseableHttpClient client = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/identities/create?" + api_key);
-            String json;
+            final String uri = "https://ensuresec.solutions.iota.org/api/v0.1/identities/create?" + Utils.api_key;
+            JSONObject json;
 
             Faker faker1 = new Faker();
-            String jsonDevice = new JSONObject()
+            JSONObject jsonDevice = new JSONObject()
                     .put("username", faker1.name())
                     .put("claim", new JSONObject().put("type", "Device").put("category", new JSONArray().put("actuator"))
                             .put("controlledProperty", new JSONArray().put("fillingLevel").put("temperature"))
@@ -50,11 +37,10 @@ public class DID {
                             .put("hardwareVersion", "number")
                             .put("ipAddress", new JSONArray().put("192.14.56.78"))
                             .put("serialNumber", "9845A")
-                            .put("dateFirstUsed", "2014-09-11T11:00:00Z"))
-                    .toString();
+                            .put("dateFirstUsed", "2014-09-11T11:00:00Z"));
 
             Faker faker2 = new Faker();
-            String jsonOrganization = new JSONObject()
+            JSONObject jsonOrganization = new JSONObject()
                     .put("username", faker2.name())
                     .put("claim", new JSONObject().put("type", "Organization").put("name", "randomName"))
                     .put("alternateName", "randomName")
@@ -62,8 +48,7 @@ public class DID {
                     .put("address", faker2.address())
                     .put("email", "organization@test.com")
                     .put("faxNumber", "1234567890")
-                    .put("telephone", "1234567890")
-                    .toString();
+                    .put("telephone", "1234567890");
 
             if(who.equals("LogCreator")) {
                 json = jsonOrganization;
@@ -72,16 +57,9 @@ public class DID {
                 json = jsonDevice;
             }
 
-            StringEntity entity = new StringEntity(json);
-            httpPost.setEntity(entity);
-            httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
-            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
-            CloseableHttpResponse response = client.execute(httpPost);
-
-            JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-            System.out.println(ANSI_RED + "DID ID: " + ANSI_RESET +  respons.getJSONObject("doc").getString("id") + "\n" + ANSI_RED + "Private Key: " + ANSI_RESET + respons.getJSONObject("key").getString("secret") + "\n" + ANSI_RED + "Public Key: " + ANSI_RESET + respons.getJSONObject("key").getString("public"));
-            client.close();
+            JSONObject respons = Utils.sendIotaPostRequest(uri, json, null);
+            System.out.println(Utils.ANSI_RED + "DID ID: " + Utils.ANSI_RESET +  respons.getJSONObject("doc").getString("id") + "\n" + Utils.ANSI_RED + "Private Key: " + Utils.ANSI_RESET + respons.getJSONObject("key").getString("secret") + "\n" + Utils.ANSI_RED + "Public Key: " + Utils.ANSI_RESET + respons.getJSONObject("key").getString("public"));
             String[] result = new String[] {respons.getJSONObject("key").getString("secret"), respons.getJSONObject("key").getString("public"), respons.getJSONObject("doc").getString("id")};
 
             JSONObject data = new JSONObject();
@@ -103,20 +81,17 @@ public class DID {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            System.out.println("-------------------------- " + ANSI_GREEN +  who + ANSI_RESET + " --------------------------");
+            System.out.println("-------------------------- " + Utils.ANSI_GREEN +  who + Utils.ANSI_RESET + " --------------------------");
             System.out.println(who + " data already exists!");
-            System.out.println(ANSI_RED + "DID ID: " + ANSI_RESET +  (String) jsonObject.get("ID") + "\n" + ANSI_RED + "Private Key: " + ANSI_RESET + (String) jsonObject.get("PrivateKey") + "\n" + ANSI_RED + "Public Key: " + ANSI_RESET + (String) jsonObject.get("PublicKey"));
+            System.out.println(Utils.ANSI_RED + "DID ID: " + Utils.ANSI_RESET +  (String) jsonObject.get("ID") + "\n" + Utils.ANSI_RED + "Private Key: " + Utils.ANSI_RESET + (String) jsonObject.get("PrivateKey") + "\n" + Utils.ANSI_RED + "Public Key: " + Utils.ANSI_RESET + (String) jsonObject.get("PublicKey"));
             return new String[] {(String) jsonObject.get("PrivateKey"), (String) jsonObject.get("PublicKey"), (String) jsonObject.get("ID")};
         }
     }
 
     public String createNonce(String did_id) throws IOException {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet("https://ensuresec.solutions.iota.org/api/v0.1/authentication/prove-ownership/" + did_id + "?" + this.api_key);
-        CloseableHttpResponse response = client.execute(httpGet);
+        final String uri = "https://ensuresec.solutions.iota.org/api/v0.1/authentication/prove-ownership/" + did_id + "?" + Utils.api_key;
 
-        JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        client.close();
+        JSONObject respons = Utils.sendIOTAGetRequest(uri);
         return respons.getString("nonce");
     }
 
@@ -140,22 +115,13 @@ public class DID {
         //https://stackoverflow.com/questions/6625776/java-security-invalidkeyexception-key-length-not-128-192-256-bits
         String sign = DatatypeConverter.printHexBinary(signature).toLowerCase();
 
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/authentication/prove-ownership/" + did_id + "?" + this.api_key);
+        final String uri = "https://ensuresec.solutions.iota.org/api/v0.1/authentication/prove-ownership/" + did_id + "?" + Utils.api_key;
 
-        String json = new JSONObject()
-                .put("signedNonce", sign)
-                .toString();
+        JSONObject json = new JSONObject()
+                .put("signedNonce", sign);
 
-        StringEntity entity = new StringEntity(json);
-        httpPost.setEntity(entity);
-        httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
-        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
-        CloseableHttpResponse response = client.execute(httpPost);
-
-        JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        client.close();
+        JSONObject response = Utils.sendIotaPostRequest(uri, json, null);
 
         // Verify Signature
         byte[] b58key_primary = Base58.decode(public_key);
@@ -169,6 +135,6 @@ public class DID {
         boolean verified = verifier.verifySignature(signature);
 
         System.out.println("Verify Signature: " + verified);
-        return respons.getString("jwt");
+        return response.getString("jwt");
     }
 }

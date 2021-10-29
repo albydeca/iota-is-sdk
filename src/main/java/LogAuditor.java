@@ -1,28 +1,19 @@
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+
 import org.bouncycastle.crypto.CryptoException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class LogAuditor {
     private String channel_address = null;
     private String jwt = null;
-    private final String api_key = "api-key=94F5BA49-12B6-4E45-A487-BF91C442276D";
     private String private_key = null;
     private String public_key = null;
     private String did_id = null;
     private String nonce = null;
-    private String seed = null;
+//    private String seed = null;
     private String subscriptionLink = null;
     Utils info = new Utils();
 
@@ -44,24 +35,14 @@ public class LogAuditor {
     }
 
     public void requestSubscription() throws IOException {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("https://ensuresec.solutions.iota.org/api/v0.1/subscriptions/request/" + this.channel_address + "?" + this.api_key);
+        final String uri = "https://ensuresec.solutions.iota.org/api/v0.1/subscriptions/request/" + this.channel_address + "?" + Utils.api_key;
 
-        String json_inn = new JSONObject()
-                .put("accessRights", "Read")
-                .toString();
+        JSONObject json_inn = new JSONObject()
+                .put("accessRights", "Read");
 
-        StringEntity entity = new StringEntity(json_inn);
-        httpPost.setEntity(entity);
-        httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
-        httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
-        httpPost.setHeader(HttpHeaders.CONTENT_TYPE,"application/json");
-
-        CloseableHttpResponse response = client.execute(httpPost);
-
-        JSONObject respons = new JSONObject(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        this.seed = respons.getString("seed");
-        this.subscriptionLink = respons.getString("subscriptionLink");
+        JSONObject json_response = Utils.sendIotaPostRequest(uri, json_inn, this.jwt);
+//        this.seed = json_response.getString("seed");
+        this.subscriptionLink = json_response.getString("subscriptionLink");
         System.out.println("SubscriptionLink: " + this.subscriptionLink);
     }
 
@@ -76,18 +57,11 @@ public class LogAuditor {
         System.out.println("startDate: " + startDate + "\nendDate: " + endDate);
         System.out.println("startDateQuery: " + startDateQuery + "\nendDateQuery: " + endDateQuery);
 
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet("https://ensuresec.solutions.iota.org/api/v0.1/channels/logs/" + this.channel_address + "?limit=5&asc=true" + "&start-date=" + startDateQuery + "&end-date=" + endDateQuery + "&" + this.api_key);
+        final String uri = "https://ensuresec.solutions.iota.org/api/v0.1/channels/logs/" + this.channel_address + "?limit=5&asc=true" + "&start-date=" + startDateQuery + "&end-date=" + endDateQuery + "&" + Utils.api_key;
 
-        httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
-        httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.jwt);
 
-        CloseableHttpResponse response = client.execute(httpGet);
-
-        JSONArray respons = new JSONArray(EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
-        System.out.println(respons);
-        System.out.println("Message from channel: " + respons.getJSONObject(0).getJSONObject("log").getJSONObject("payload"));
-        client.close();
+        JSONArray json_response = Utils.sendIOTAGetRequestWithAuth(uri, jwt);
+        System.out.println("Message from channel: " + json_response.getJSONObject(0).getJSONObject("log").getJSONObject("payload"));
     }
 
 }
