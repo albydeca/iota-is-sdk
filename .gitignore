@@ -1,4 +1,5 @@
-target/
+target/*
+persistent_channels/*
 *.DS_Store
 pom.xml.tag
 pom.xml.releaseBackup
@@ -16,3 +17,4 @@ LogCreator.json
 .classpath
 .project
 .settings/*
+/target/

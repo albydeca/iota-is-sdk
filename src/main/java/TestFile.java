@@ -25,9 +25,12 @@ public class TestFile {
             }
 
             JSONObject test1 = new JSONObject();
-            test1.put("PrivateKey", "bjfcasbchvuacyahcds65cd7svcds8v9ds7v86ds8V9Sd");
-            test1.put("PublicKey", "bhfds7ft7s8gvwec8e9vbccyebcewucu8wycwvec7wevcwe78cvewubcew");
-            test1.put("DidID", "snivuisnfvsd:busvuhdsvcudsbvsbvka");
+            test1.put("PrivateKey",
+            		"bjfcasbchvuacyahcds65cd7svcds8v9ds7v86ds8V9Sd");
+            test1.put("PublicKey",
+            		"bhfds7ft7s8gvwec8e9vbccyebcewucu8wycwvec7wevcwe78cvewubcew");
+            test1.put("DidID",
+            		"snivuisnfvsd:busvuhdsvcudsbvsbvka");
             System.out.println(test1);
             FileWriter myWriter = new FileWriter("test.json");
             myWriter.write(test1.toString());
@@ -35,7 +38,8 @@ public class TestFile {
             System.out.println("Successfully wrote to the file.");
 
             JSONParser jsonParser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader("test.json"));
+            JSONObject jsonObject = (JSONObject) jsonParser.parse
+            		(new FileReader("test.json"));
             String value = (String) jsonObject.get("PublicKey");
             System.out.println("TEST: " + value);
 
