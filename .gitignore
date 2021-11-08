@@ -1,5 +1,6 @@
 target/*
 persistent_channels/*
+data_source/*
 *.DS_Store
 pom.xml.tag
 pom.xml.releaseBackup

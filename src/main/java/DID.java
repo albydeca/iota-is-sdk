@@ -120,42 +120,42 @@ public class DID {
         }
     }
 
-    public String createNonce(String did_id) throws IOException {
+    public String createNonce(String didId) throws IOException {
         final String uri = Utils.iotastreamsApiBaseUrl +
-        		"authentication/prove-ownership/" + did_id + "?" +
+        		"authentication/prove-ownership/" + didId + "?" +
         		Utils.apiKey;
 
-        JSONObject respons = Utils.sendIOTAGetRequest(uri);
+        JSONObject response = Utils.sendIOTAGetRequest(uri);
         System.out.println(System.getProperty("api-key"));
-        return respons.getString("nonce");
+        return response.getString("nonce");
     }
 
     public String signNonce
-    	(String private_key, String public_key, String nonce, String did_id) 
+    	(String privateKey, String publicKey, String nonce, String didId) 
     			throws IOException, CryptoException {
 
-        byte[] b58key = Base58.decode(private_key);    // Decode a base58 key and encode it as hex key
-        String b58key_hex = DatatypeConverter.printHexBinary(b58key)
+        byte[] b58key = Base58.decode(privateKey);    // Decode a base58 key and encode it as hex key
+        String b58keyHex = DatatypeConverter.printHexBinary(b58key)
         		.toLowerCase();
-        byte[] convert_key = DatatypeConverter.parseHexBinary(b58key_hex);
+        byte[] convertKey = DatatypeConverter.parseHexBinary(b58keyHex);
 
-        String hash_nonce_hex = DigestUtils.sha256Hex(nonce); // Hash a nonce with SHA-256 (apache_commons)
-        byte[] convert_nonce = DatatypeConverter.parseHexBinary(hash_nonce_hex);
+        String hashNonceHex = DigestUtils.sha256Hex(nonce); // Hash a nonce with SHA-256 (apache_commons)
+        byte[] convertNonce = DatatypeConverter.parseHexBinary(hashNonceHex);
 
 
         //https://stackoverflow.com/questions/53921655/rebuild-of-ed25519-keys-with-bouncy-castle-java
-        Ed25519PrivateKeyParameters privateKey = 
-        		new Ed25519PrivateKeyParameters(convert_key, 0);  // Encode in PrivateKey
+        Ed25519PrivateKeyParameters privateKeyParams = 
+        		new Ed25519PrivateKeyParameters(convertKey, 0);  // Encode in PrivateKey
         Signer signer = new Ed25519Signer();    // Sign a nonce using the private key
-        signer.init(true, privateKey);
-        signer.update(convert_nonce, 0, convert_nonce.length);
+        signer.init(true, privateKeyParams);
+        signer.update(convertNonce, 0, convertNonce.length);
         byte[] signature = signer.generateSignature();
 
         //https://stackoverflow.com/questions/6625776/java-security-invalidkeyexception-key-length-not-128-192-256-bits
         String sign = DatatypeConverter.printHexBinary(signature).toLowerCase();
 
         final String uri = Utils.iotastreamsApiBaseUrl +
-        		"authentication/prove-ownership/" + did_id + "?" + 
+        		"authentication/prove-ownership/" + didId + "?" + 
         		Utils.apiKey;
 
         JSONObject json = new JSONObject()
@@ -165,17 +165,17 @@ public class DID {
         JSONObject response = Utils.sendIotaPostRequest(uri, json, null);
 
         // Verify Signature
-        byte[] b58key_primary = Base58.decode(public_key);
-        String b58key_primary_hex = DatatypeConverter.
-        		printHexBinary(b58key_primary).toLowerCase();
+        byte[] b58keyPrimary = Base58.decode(publicKey);
+        String b58keyPrimaryHex = DatatypeConverter.
+        		printHexBinary(b58keyPrimary).toLowerCase();
         byte[] convert_primarykey = DatatypeConverter.
-        		parseHexBinary(b58key_primary_hex);
+        		parseHexBinary(b58keyPrimaryHex);
 
         Ed25519PublicKeyParameters primaryKeyVerify = 
         		new Ed25519PublicKeyParameters(convert_primarykey, 0);
         Signer verifier = new Ed25519Signer();
         verifier.init(false, primaryKeyVerify);
-        verifier.update(convert_nonce, 0, convert_nonce.length);
+        verifier.update(convertNonce, 0, convertNonce.length);
         boolean verified = verifier.verifySignature(signature);
 
         System.out.println("Verify Signature: " + verified);

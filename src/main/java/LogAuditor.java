@@ -78,9 +78,12 @@ public class LogAuditor {
 
 
         JSONArray jsonResponse = Utils.sendIOTAGetRequestWithAuth(uri, jwt);
-        System.out.println("Message from channel: " + 
-        		jsonResponse.getJSONObject(0).getJSONObject("log")
-        		.getJSONObject("payload"));
+        for(int i = 0; i < jsonResponse.length(); i++) {
+        	System.out.println("Message from channel: " + 
+            		jsonResponse.getJSONObject(i).getJSONObject("log")
+            		.getJSONObject("payload"));
+        }
+        
     }
 
 }

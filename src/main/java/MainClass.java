@@ -18,11 +18,15 @@ public class MainClass {
         		auditorIsSubscribedToChannel(auditor.getDid_id());
         if(!subbed.x) {
         	if(subbed.y == null) {
+        		System.out.println("Requesting subscription for 1st time...");
         		creator.authorizeSubscriptionToChannel(
         				auditor.requestSubscription());
         	} else {
+        		System.out.println("Confirming pre-requested subscription...");
         		creator.authorizeSubscriptionToChannel(subbed.y);
         	}
+        } else {
+        	System.out.println("Auditor already subscribed...");
         }
         
         InputStream is = new FileInputStream(filepath);

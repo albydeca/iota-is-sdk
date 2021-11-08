@@ -8,6 +8,10 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 public class LogCreator {
@@ -104,15 +108,19 @@ public class LogCreator {
         		Utils.iotastreamsApiBaseUrl +"channels/logs/" +
         				this.channelAddress + "?" + Utils.apiKey;
 
-        JSONObject json = new JSONObject()
+        TimeZone tz = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        df.setTimeZone(tz);
+        String nowAsISO = df.format(new Date());
+		JSONObject json = new JSONObject()
                 .put("type", "example-channel-data")
-                .put("created", LocalDateTime.now().
-                		format(DateTimeFormatter.ISO_INSTANT))
+                .put("created", nowAsISO)
                 .put("metadata", "example-meta-data")
                 .put("payload", input);
 
         Utils.sendIotaPostRequest(uri, json, jwt);
-        System.out.println("Message send to channel: " + input);
+        System.out.println("Message send to channel: " + input +
+        		" " + nowAsISO);
     }
 
     public void getDataFromChannel() throws IOException {
