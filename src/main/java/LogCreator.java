@@ -35,7 +35,8 @@ public class LogCreator {
             this.nonce = did.createNonce(this.didId);
             this.jwt = did.signNonce(this.privateKey,
             		this.publicKey, this.nonce, this.didId);
-            createChannel(true);
+            createChannel(Boolean.parseBoolean
+            		(System.getProperty("persist_channel")));
         } catch (IOException | CryptoException e) {
             e.printStackTrace();
         }

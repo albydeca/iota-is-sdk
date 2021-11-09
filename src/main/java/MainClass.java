@@ -31,7 +31,7 @@ public class MainClass {
         
         InputStream is = new FileInputStream(filepath);
         JSONObject data = new JSONObject(IOUtils.toString(is, "UTF-8"));
-////        data.put("Test1", "1").put("Test2", "2").put("Test3", "3");
+
         creator.writeDataOnChannel(data);
         
         System.out.println("-------------------------- " +
