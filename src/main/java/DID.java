@@ -126,7 +126,6 @@ public class DID {
         		Utils.apiKey;
 
         JSONObject response = Utils.sendIOTAGetRequest(uri);
-        System.out.println(System.getProperty("api-key"));
         return response.getString("nonce");
     }
 
