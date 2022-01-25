@@ -21,7 +21,7 @@ public class IdentityInternal extends IOTAAPIDataItem {
 	
 
 	public IdentityInternal(JSONObject source) {
-		this.id = source.getString("identityId");
+		this.id = source.getString("id");
 		this.publicKey = source.getString("publicKey");
 		
 		try {
@@ -141,7 +141,7 @@ public class IdentityInternal extends IOTAAPIDataItem {
 
 	@Override
 	public JSONObject toJson() {
-		JSONObject result = new JSONObject().put("identityId", this.id)
+		JSONObject result = new JSONObject().put("id", this.id)
 				.put("publicKey", this.publicKey);
 		
 		if(this.username != null) {

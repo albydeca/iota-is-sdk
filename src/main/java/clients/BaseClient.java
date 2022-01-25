@@ -3,6 +3,7 @@ package clients;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
+import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -18,22 +19,14 @@ import org.bitcoinj.core.Base58;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
-import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import javax.xml.bind.DatatypeConverter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -41,7 +34,7 @@ import java.util.Properties;
 import java.util.Map;
 import java.util.Date;
 
-import java.io.IOException;
+import exceptions.InvalidAPIResponseException;
 
 /**
  * This is the base client used as a parent class for all clients
@@ -65,7 +58,9 @@ public class BaseClient {
 	}
 	
 	private HttpEntity sendPostRequest(String endpoint, Object body,
-			CloseableHttpClient client, boolean needsBearer) throws URISyntaxException, ClientProtocolException, IOException {
+			CloseableHttpClient client, boolean needsBearer) 
+					throws URISyntaxException, ClientProtocolException, 
+					IOException, InvalidAPIResponseException {
 		URIBuilder builder = new URIBuilder(baseUrl+endpoint);
     	builder.setParameter("api-key", apiKey);
         HttpPost httpPost = new HttpPost(builder.build());
@@ -79,14 +74,19 @@ public class BaseClient {
         httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
         CloseableHttpResponse response = client.execute(httpPost);
-
+        int statusCode = response.getStatusLine().getStatusCode();
+        
         final HttpEntity response_body = response.getEntity();
+        if(statusCode != 200) {
+        	throw new InvalidAPIResponseException(EntityUtils.toString
+            		(response_body, StandardCharsets.UTF_8));
+        }
         return response_body;
 	}
 	
 	private HttpEntity sendGetRequest(String endpoint, Map<String, String> params,
 			boolean needsBearer, String presharedKey, CloseableHttpClient client) 
-					throws URISyntaxException, ClientProtocolException, IOException {
+					throws URISyntaxException, ClientProtocolException, IOException, ParseException, InvalidAPIResponseException {
 		URIBuilder builder = new URIBuilder(baseUrl+endpoint);
     	
     	if(params!=null) {
@@ -108,12 +108,17 @@ public class BaseClient {
         
         CloseableHttpResponse response = client.execute(httpGet);
         final HttpEntity response_body = response.getEntity();
+        int statusCode = response.getStatusLine().getStatusCode();
+        if(statusCode != 200) {
+        	throw new InvalidAPIResponseException(EntityUtils.toString
+            		(response_body, StandardCharsets.UTF_8));
+        }
         return response_body;
 	}
 //	
 	public JSONObject sendIOTAPostRequest
     (String endpoint, JSONObject body, boolean withAuth) 
-    		throws ClientProtocolException, IOException, URISyntaxException {
+    		throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
     	CloseableHttpClient client = HttpClients.createDefault();
     	final HttpEntity response_body = sendPostRequest(endpoint, body, client, withAuth);
         if(response_body == null) {return null;}
@@ -125,7 +130,7 @@ public class BaseClient {
     }
 	
 	public JSONArray sendIOTAPostRequestArray(String endpoint, JSONArray body, boolean withAuth) 
-			throws URISyntaxException, ClientProtocolException, IOException {
+			throws URISyntaxException, ClientProtocolException, IOException, InvalidAPIResponseException {
 		CloseableHttpClient client = HttpClients.createDefault();
 		final HttpEntity response_body = sendPostRequest(endpoint, body, client, withAuth);
         
@@ -137,7 +142,7 @@ public class BaseClient {
 	
 	public JSONObject sendIOTAGetRequest(String endpoint,
 			Map<String, String> params, boolean withAuth)
-    		throws ClientProtocolException, IOException, URISyntaxException {
+    		throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
     	CloseableHttpClient client = HttpClients.createDefault();
     	final HttpEntity response_body = sendGetRequest(endpoint, params, withAuth, null, client);
 
@@ -149,7 +154,7 @@ public class BaseClient {
 	
 	public JSONArray sendIOTAGetRequestArray(String endpoint,
 			Map<String, String> params, boolean withAuth)
-    		throws ClientProtocolException, IOException, URISyntaxException {
+    		throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
     	CloseableHttpClient client = HttpClients.createDefault();
     	final HttpEntity response_body = sendGetRequest(endpoint, params, withAuth, null, client);
     	
@@ -162,7 +167,7 @@ public class BaseClient {
 	
 	public JSONArray sendIOTAGetRequestWithPresharedKey(String endpoint,
 			String presharedKey, Map<String, String> params) throws URISyntaxException,
-	ClientProtocolException, IOException {
+	ClientProtocolException, IOException, ParseException, InvalidAPIResponseException {
 		CloseableHttpClient client = HttpClients.createDefault();
 		final HttpEntity response_body = sendGetRequest(endpoint, params, false, presharedKey, client);
 
@@ -231,12 +236,12 @@ public class BaseClient {
 	}
 	
 	public void authenticate(String didId, String privateKeyB58)
-			throws IOException, CryptoException, URISyntaxException {
+			throws IOException, CryptoException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String nonce = createNonce(didId);
 		signNonce(privateKeyB58, nonce, didId);
 	}
 	
-	private String createNonce(String didId) throws IOException, URISyntaxException {
+	private String createNonce(String didId) throws IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
         final String endpoint = "authentication/prove-ownership/" + didId;
 
         JSONObject response = sendIOTAGetRequest(endpoint, null, false);
@@ -244,7 +249,7 @@ public class BaseClient {
     }
 	
 	public void signNonce(String privateKey, String nonce, String didId) 
-			throws IOException, CryptoException, URISyntaxException {
+			throws IOException, CryptoException, URISyntaxException, InvalidAPIResponseException {
 
 	    byte[] b58key = Base58.decode(privateKey);    // Decode a base58 key and encode it as hex key
 	    String b58keyHex = DatatypeConverter.printHexBinary(b58key)

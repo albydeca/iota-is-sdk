@@ -12,6 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import exceptions.InvalidAPIResponseException;
+
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -37,16 +39,17 @@ public class ChannelClient extends BaseClient {
 	   * @param hasPresharedKey
 	   * @param seed
 	   * @param presharedKey
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public JSONObject create(String subscriptionPassword,
-			Map<String, String>[] topics, Boolean hasPresharedKey,
+			List<Map<String, String>> topics, Boolean hasPresharedKey,
 			String seed, String presharedKey) 
-					throws ClientProtocolException, IOException, URISyntaxException {
+					throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "channels/create";
 		JSONArray topicsArray = new JSONArray();
-		for(int i = 0; i<topics.length; i++) {
-			Map<String, String> t = topics[i];
+		for(int i = 0; i<topics.size(); i++) {
+			Map<String, String> t = topics.get(i);
 			JSONObject topic = new JSONObject()
 					.put("type", t.get("type"))
 					.put("source", t.get("source"));
@@ -81,10 +84,11 @@ public class ChannelClient extends BaseClient {
 	   * @param type
 	   * @param metadata
 	   * @param payload
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public ChannelData write(String channelAddress, String type, String metadata,
-			JSONObject payload) throws ClientProtocolException, IOException, URISyntaxException {
+			JSONObject payload) throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "channels/logs/" + channelAddress;
 		TimeZone tz = TimeZone.getTimeZone("UTC");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
@@ -112,11 +116,13 @@ public class ChannelClient extends BaseClient {
 	   * @param asc
 	   * @param start
 	   * @param end
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
 	public List<ChannelData> read(String channelAddress, Integer limit, Integer index,
 			Boolean asc, Date start, Date end) 
-					throws ClientProtocolException, IOException, URISyntaxException {
+					throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "channels/logs/" + channelAddress;
 		
         Map<String, String> params = new HashMap<String, String>();
@@ -150,10 +156,12 @@ public class ChannelClient extends BaseClient {
 	   * Get all data of a channel using a shared key (in case of encrypted channels). Mainly used from auditors to evaluate a log stream.
 	   * @param channelAddress
 	   * @param presharedKey
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
 	public List<ChannelData> readHistory(String channelAddress, String presharedKey)
-			throws ClientProtocolException, URISyntaxException, IOException {
+			throws ClientProtocolException, URISyntaxException, IOException, ParseException, InvalidAPIResponseException {
 		String endpoint = "channels/history/" + channelAddress;
 		JSONArray response = sendIOTAGetRequestWithPresharedKey(endpoint, presharedKey, null);
 		
@@ -169,10 +177,11 @@ public class ChannelClient extends BaseClient {
 	   * Validates channel data by comparing the log of each link with the data on the tangle.
 	   * @param channelAddress
 	   * @param datas
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public JSONArray validate(String channelAddress, List<ChannelData> datas) 
-			throws ClientProtocolException, URISyntaxException, IOException {
+			throws ClientProtocolException, URISyntaxException, IOException, InvalidAPIResponseException {
 		String endpoint = "channels/validate/" + channelAddress;
 		
 		JSONArray body = new JSONArray();
@@ -187,10 +196,11 @@ public class ChannelClient extends BaseClient {
 	   * The user can decide to re-import the data from the Tangle into the database. A reason for it could be a malicious state of the data.
 	   * @param channelAddress
 	   * @param body
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public void reimport(String channelAddress, JSONObject body) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		sendIOTAPostRequest("channels/re-import/" + channelAddress, body, true);
 	}
 	
@@ -202,11 +212,13 @@ public class ChannelClient extends BaseClient {
 	   * @param latestMessage
 	   * @param limit
 	   * @param index
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
-	public List<ChannelInfo> search(String author, ChannelTopic topic,
-			Date created, Date latestMessage, Integer limit, Integer index)
-					throws ClientProtocolException, IOException, URISyntaxException {
+	public List<ChannelInfo> search(String author, String authorId, String topicType,
+			String topicSource, Date created, Date latestMessage, Integer limit, Integer index)
+					throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "channel-info/search";
 		Map<String, String> params = new HashMap<String, String>();
 		
@@ -214,9 +226,16 @@ public class ChannelClient extends BaseClient {
 			params.put("author", author);
 		}
 		
-		if(topic != null) {
-			params.put("topic-type", topic.getType());
-			params.put("topic-source", topic.getSource());
+		if(authorId != null) {
+			params.put("author-id", authorId);
+		}
+		
+		if(topicType != null) {
+			params.put("topic-type", topicType);
+		}
+		
+		if(topicSource != null) {
+			params.put("topic-source", topicSource);
 		}
 		
 		if(created != null) {
@@ -249,10 +268,12 @@ public class ChannelClient extends BaseClient {
 	  /**
 	   * Get information about a channel with address channel-address.
 	   * @param channelAddress
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
 	public ChannelInfo info(String channelAddress) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "channel-info/channel/" + channelAddress;
 		final JSONObject response = sendIOTAGetRequest(endpoint, null, false);
 		if (response == null) {return null;}
@@ -262,10 +283,11 @@ public class ChannelClient extends BaseClient {
 	  /**
 	   * Add an existing channel into the database. Clients are able to add existing channels into the database so others can subscribe to them. This will be automatically called when a channel will be created.
 	   * @param info
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public void add(ChannelInfo info) throws ClientProtocolException,
-	IOException, URISyntaxException {
+	IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "channel-info/channel";
 		sendIOTAPostRequest(endpoint, info.toJson(), true);
 	}
@@ -296,10 +318,12 @@ public class ChannelClient extends BaseClient {
 	   * Get all subscriptions of a channel. Use the is-authorized query parameter to filter for authorized subscriptions.
 	   * @param channelAddress
 	   * @param isAuthorized
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
 	public List<SubscriptionInternal> findAllSubscriptions(String channelAddress, Boolean isAuthorized)
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "subscriptions/" + channelAddress;
 		JSONArray response;
 		if(isAuthorized != null) {
@@ -323,10 +347,12 @@ public class ChannelClient extends BaseClient {
 	   * Get a subscription of a channel by identity id.
 	   * @param channelAddress
 	   * @param id
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
 	public SubscriptionInternal findSubscription(String channelAddress, String id) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "subscriptions/" + channelAddress + "/" + id;
 		final JSONObject response = sendIOTAGetRequest(endpoint, null, true);
 		if (response == null) {return null;}
@@ -337,10 +363,11 @@ public class ChannelClient extends BaseClient {
 	   * Request subscription to a channel with address channel-address. A client can request a subscription to a channel which it then is able to read/write from.
 	   * @param channelAddress
 	   * @param options
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public JSONObject requestSubscription(String channelAddress, JSONObject options)
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "subscriptions/request/" + channelAddress;
 		
 		return sendIOTAPostRequest(endpoint, options, true);
@@ -350,10 +377,11 @@ public class ChannelClient extends BaseClient {
 	   * Authorize a subscription to a channel with address channel-address. The author of a channel can authorize a subscriber to read/write from a channel. Eventually after verifying its identity (using the Ecommerce-SSI Bridge).
 	   * @param channelAddress
 	   * @param subId
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public JSONObject authorizeSubscription(String channelAddress, JSONObject subId) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "subscriptions/authorize/" + channelAddress;
 		
 		return sendIOTAPostRequest(endpoint, subId, true);
@@ -363,10 +391,11 @@ public class ChannelClient extends BaseClient {
 	   * Revoke subscription to a channel. Only the author of a channel can revoke a subscription from a channel.
 	   * @param channelAddress
 	   * @param subId
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public void revokeSubscription(String channelAddress, JSONObject subId) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "subscriptions/revoke/" + channelAddress;
 		
 		sendIOTAPostRequest(endpoint, subId, true);
@@ -377,10 +406,11 @@ public class ChannelClient extends BaseClient {
 	   * @param channelAddress
 	   * @param id
 	   * @param sub
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public SubscriptionInternal addSubscription(String channelAddress, String id, SubscriptionInternal sub) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "subscriptions/" + channelAddress + "/" + id;
 		final JSONObject response = sendIOTAPostRequest(endpoint, sub.toJson(), true);
 		if (response == null) {return null;}

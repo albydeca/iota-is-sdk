@@ -14,6 +14,8 @@ import org.json.JSONObject;
 
 import com.github.javafaker.Faker;
 
+import exceptions.InvalidAPIResponseException;
+
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -36,10 +38,11 @@ public class IdentityClient extends BaseClient {
 	   * Create a new decentralized digital identity (DID). Identity DID document is signed and published to the ledger (IOTA Tangle). A digital identity can represent an individual, an organization or an object. The privateAuthKey controlling the identity is returned. It is recommended to securely (encrypt) store the privateAuthKey locally, since it is not stored on the APIs Bridge.
 	   * @param username
 	   * @param claim
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public JSONObject create(String username, Claim claim) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "identities/create";
 		JSONObject body = new JSONObject().put("username", username)
 				.put("claim", claim.toJson());
@@ -54,11 +57,13 @@ public class IdentityClient extends BaseClient {
 	   * @param registrationDate
 	   * @param limit
 	   * @param index
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
 	public List<IdentityInternal> search(String type, String username,
 			Date registrationDate, Integer limit, Integer index)
-					throws ClientProtocolException, IOException, URISyntaxException {
+					throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "identities/search";
 		
 		Map<String, String> params = new HashMap<String, String>();
@@ -97,10 +102,12 @@ public class IdentityClient extends BaseClient {
 	  /**
 	   * Get information (including attached credentials) about a specific identity using the identity-id (DID identifier).
 	   * @param id
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
 	public IdentityInternal find(String id) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "identities/identity/" + id;
 		
 		final JSONObject response = sendIOTAGetRequest(endpoint, null, false);
@@ -111,10 +118,11 @@ public class IdentityClient extends BaseClient {
 	  /**
 	   * Register an existing identity into the Bridge. This can be used if the identity already exists or it was only created locally. Registering an identity in the Bridge makes it possible to search for it by using some of the identity attributes, i.e., the username.
 	   * @param identity
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public void add(IdentityInternal identity) 
-			throws ClientProtocolException, URISyntaxException, IOException {
+			throws ClientProtocolException, URISyntaxException, IOException, InvalidAPIResponseException {
 		String endpoint = "identities/identity";
 		sendIOTAPostRequest(endpoint, identity.toJson(), true);
 	}
@@ -151,10 +159,12 @@ public class IdentityClient extends BaseClient {
 	  /**
 	   * Get the latest version of an identity document (DID) from the IOTA Tangle.
 	   * @param id
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
 	public JSONObject latestDocument(String id) throws
-	ClientProtocolException, IOException, URISyntaxException {
+	ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "verification/latest-document/" + id;
 		return sendIOTAGetRequest(endpoint, null, false);
 	}
@@ -162,10 +172,11 @@ public class IdentityClient extends BaseClient {
 	  /**
 	   * Adds Trusted Root identity identifiers (DIDs). Trusted roots are DIDs of identities which are trusted by the Bridge. This identity DIDs can be DIDs of other organizations. By adding them to the list Trusted Roots their Verifiable Credentials (VCs) are automatically trusted when checking at the Bridge.
 	   * @param trustedRootId
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public void addTrustedAuthority(String trustedRootId) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "verification/trusted-roots";
 		JSONObject body = new JSONObject().put("trustedRootId", trustedRootId);
 		sendIOTAPostRequest(endpoint, body, true);
@@ -173,10 +184,12 @@ public class IdentityClient extends BaseClient {
 	
 	  /**
 	   * Returns a list of Trusted Root identity identifiers (DIDs). Trusted roots are DIDs of identities which are trusted by the Bridge. This identity DIDs can be DIDs of other organizations. By adding them to the list Trusted Roots their Verifiable Credentials (VCs) are automatically trusted when checking at the Bridge.
+	 * @throws InvalidAPIResponseException 
+	 * @throws ParseException 
 	   * @returns
 	   */
 	public List<String> getTrustedAuthorities() 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "verification/trusted-roots";
 		
 		JSONArray response = sendIOTAGetRequestArray(endpoint, null, false);
@@ -207,18 +220,24 @@ public class IdentityClient extends BaseClient {
 	   * @param targetDid
 	   * @param credType
 	   * @param claim
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public VerifiableCredential createCredential(VerifiableCredential initiator,
 			String targetDid, CredentialType credType, Claim claim) 
-					throws ClientProtocolException, IOException, URISyntaxException {
+					throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "verification/create-credential";
 		
+		JSONObject subjectBody = new JSONObject().put("id", targetDid)
+		.put("credentialType", credType.toString())
+		.put("claim", claim.toJson());
+		if(initiator != null) {
+			subjectBody.put("initiatorVC", initiator.toJson());
+		}
 		JSONObject body = new JSONObject().put("subject",
-				new JSONObject().put("id", targetDid)
-				.put("credentialType", credType.toString())
-				.put("claim", claim.toJson()))
-				.put("initiatorVC", initiator.toJson());
+				subjectBody);
+//				.put("initiatorVC", initiator.toJson());
+		
 		
 		JSONObject response = sendIOTAPostRequest(endpoint, body, true);
 		if (response == null) {return null;}
@@ -228,10 +247,11 @@ public class IdentityClient extends BaseClient {
 	  /**
 	   * Check the verifiable credential of an identity. Validates the signed verifiable credential against the Issuer information stored onto the IOTA Tangle and checks if the issuer identity (DID) contained in the credential is from a trusted root.
 	   * @param credential
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public boolean checkCredential(VerifiableCredential credential) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "verification/check-credential";
 		
 		JSONObject response = sendIOTAPostRequest(endpoint, credential.toJson(), false);
@@ -241,10 +261,11 @@ public class IdentityClient extends BaseClient {
 	  /**
 	   * Revoke one specific verifiable credential of an identity. In the case of individual and organization identities the reason could be that the user has left the organization. Only organization admins (with verified identities) or the identity owner itself can do that.
 	   * @param signatureValue
+	 * @throws InvalidAPIResponseException 
 	   * @returns
 	   */
 	public void revokeCredential(String signatureValue) 
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
 		String endpoint = "verification/revoke-credential";
 		
 		JSONObject body = new JSONObject().put("signatureValue", signatureValue);

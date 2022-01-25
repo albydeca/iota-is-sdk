@@ -32,6 +32,7 @@ public class Claim extends IOTAAPIDataItem {
 	private UserType type;
 	private JSONObject body;
 	
+	
 	public Claim(JSONObject source) {
 		this.body = source;
 		

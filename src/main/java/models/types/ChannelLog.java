@@ -3,11 +3,11 @@ package models.types;
 import org.json.JSONObject;
 import org.json.JSONException;
 
-class ChannelLog extends IOTAAPIDataItem {
+public class ChannelLog extends IOTAAPIDataItem {
 	private String type;
 	private String created;
 	private String metadata; // is 'Any' on Node version
-	private String payload; // is 'Any' on Node version
+	private Object payload; // is 'Any' on Node version
 	private String publicPayload; // is 'Any' on Node version
 	
 	public ChannelLog(String type, String created, String metadata, String payload, String publicPayload) {
@@ -45,7 +45,7 @@ class ChannelLog extends IOTAAPIDataItem {
 		}
 		
 		try {
-			this.payload = source.getString("payload");
+			this.payload = source.get("payload");
 		} catch(JSONException ex) {
 			this.payload = null;
 		}
@@ -64,8 +64,12 @@ class ChannelLog extends IOTAAPIDataItem {
 		return metadata;
 	}
 
-	public String getPayload() {
+	public Object getPayload() {
 		return payload;
+	}
+	
+	public void setPayload(Object payload) {
+		this.payload = payload;
 	}
 
 	public String getPublicPayload() {
