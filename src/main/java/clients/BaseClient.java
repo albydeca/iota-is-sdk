@@ -78,7 +78,7 @@ public class BaseClient {
         
         final HttpEntity response_body = response.getEntity();
         if(statusCode != 200) {
-        	throw new InvalidAPIResponseException(EntityUtils.toString
+        	throw new InvalidAPIResponseException(statusCode + EntityUtils.toString
             		(response_body, StandardCharsets.UTF_8));
         }
         return response_body;
@@ -110,7 +110,7 @@ public class BaseClient {
         final HttpEntity response_body = response.getEntity();
         int statusCode = response.getStatusLine().getStatusCode();
         if(statusCode != 200) {
-        	throw new InvalidAPIResponseException(EntityUtils.toString
+        	throw new InvalidAPIResponseException(statusCode + EntityUtils.toString
             		(response_body, StandardCharsets.UTF_8));
         }
         return response_body;

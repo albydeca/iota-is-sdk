@@ -231,13 +231,14 @@ public class IdentityClient extends BaseClient {
 		JSONObject subjectBody = new JSONObject().put("id", targetDid)
 		.put("credentialType", credType.toString())
 		.put("claim", claim.toJson());
-		if(initiator != null) {
-			subjectBody.put("initiatorVC", initiator.toJson());
-		}
+		
 		JSONObject body = new JSONObject().put("subject",
 				subjectBody);
-//				.put("initiatorVC", initiator.toJson());
 		
+		if(initiator != null) {
+			body.put("initiatorVC", initiator.toJson());
+		}
+		System.out.println(body);
 		
 		JSONObject response = sendIOTAPostRequest(endpoint, body, true);
 		if (response == null) {return null;}

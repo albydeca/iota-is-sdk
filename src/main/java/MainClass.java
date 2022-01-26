@@ -5,38 +5,35 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import examples.*;
+
 public class MainClass {
     public static void main(String args[]) 
     		throws Exception {
-    	final String filepath = System.getProperty("data-filepath");
-        LogCreator creator = new LogCreator();
-        LogAuditor auditor = new LogAuditor();
-        System.out.println("-------------------------- " +
-	        Utils.ANSI_GREEN +  "LogCreator" + Utils.ANSI_RESET +
-	        " --------------------------");
-        Tuple<Boolean, String> subbed = creator.
-        		auditorIsSubscribedToChannel(auditor.getDid_id());
-        if(!subbed.x) {
-        	if(subbed.y == null) {
-        		System.out.println("Requesting subscription for 1st time...");
-        		creator.authorizeSubscriptionToChannel(
-        				auditor.requestSubscription());
-        	} else {
-        		System.out.println("Confirming pre-requested subscription...");
-        		creator.authorizeSubscriptionToChannel(subbed.y);
-        	}
-        } else {
-        	System.out.println("Auditor already subscribed...");
-        }
-        
-        InputStream is = new FileInputStream(filepath);
-        JSONObject data = new JSONObject(IOUtils.toString(is, "UTF-8"));
-
-        creator.writeDataOnChannel(data);
-        
-        System.out.println("-------------------------- " +
-	        Utils.ANSI_GREEN +  "LogAuditor" + Utils.ANSI_RESET +
-	        " --------------------------");
-        auditor.getDataFromChannel();
+    	
+    	// must do this always
+    	Preliminary.doPrelims();
+    	
+    	// execute examples in this order to avoid heisenbugs
+    	// run example 1
+//    	CreateIdentityAndCredential.executeExample();
+    	
+    	// run example 2
+//    	UpdateUser.executeExample();
+    	
+    	// run example 3
+//    	DeleteUser.executeExample();
+    	
+    	// run example 4
+//    	TrustedAuthorities.executeExample();
+    	
+    	// run example 5
+//    	CreateChannel.executeExample();
+    	
+    	// run example 6
+//    	AuthorizeToChannel.executeExample();
+    	
+    	// run example 7
+//    	SearchChannelAndValidateData.executeExample();
     }
 }

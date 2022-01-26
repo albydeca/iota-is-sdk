@@ -9,7 +9,7 @@ import clients.IdentityClient;
 import models.types.*;
 
 public class Preliminary {
-	public void doPrelims() throws Exception {
+	public static void doPrelims() throws Exception {
 		IdentityClient client = new IdentityClient();
 		
 		InputStream is = new FileInputStream("LogCreator.json");
@@ -17,11 +17,12 @@ public class Preliminary {
         System.out.println(jsonTxt);
         JSONObject json = new JSONObject(jsonTxt);  
         
+        System.out.println("Creating identity "+ jsonTxt);
 		final String didId = json.getString("ID");
 		client.authenticate(didId, json.getString("PrivateKey"));
 		
-		VerifiableCredential vc = client.createCredential(null, didId,
-				CredentialType.VERIFIED_IDENTITY, new Claim(new JSONObject()));
+		client.createCredential(null, didId,
+				CredentialType.VERIFIED_IDENTITY, new Claim(UserType.SERVICE));
 		System.out.println("created Root Identity");
 	}
 }

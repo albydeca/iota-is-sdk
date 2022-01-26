@@ -57,6 +57,10 @@ public class Claim extends IOTAAPIDataItem {
 		}
 	}
 	
+	public Claim(UserType type) {
+		this.type = type;
+		this.body = new JSONObject().put("type", type.toString());
+	}
 
 	public UserType getType() {
 		return type;
