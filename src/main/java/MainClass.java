@@ -1,9 +1,3 @@
-import org.json.JSONObject;
-import org.apache.commons.io.IOUtils;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import examples.*;
 
@@ -11,29 +5,28 @@ public class MainClass {
     public static void main(String args[]) 
     		throws Exception {
     	
-    	// must do this always
-    	Preliminary.doPrelims();
+    	// run example 0 - bug with 500 cannot create credential
+//    	Preliminary.doPrelims();
     	
-    	// execute examples in this order to avoid heisenbugs
-    	// run example 1
+    	// run example 1 - bug with "identities/identity/" + id GET returns nothing
 //    	CreateIdentityAndCredential.executeExample();
     	
-    	// run example 2
+    	// run example 2 OK
 //    	UpdateUser.executeExample();
     	
-    	// run example 3
+    	// run example 3 OK
 //    	DeleteUser.executeExample();
     	
-    	// run example 4
+    	// run example 4 - bug with "identities/identity/" + id GET returns nothing
 //    	TrustedAuthorities.executeExample();
     	
-    	// run example 5
+    	// run example 5 - OK
 //    	CreateChannel.executeExample();
     	
-    	// run example 6
+    	// run example 6 - OK (authorised user can only see the latest msg)
 //    	AuthorizeToChannel.executeExample();
     	
-    	// run example 7
-//    	SearchChannelAndValidateData.executeExample();
+    	// run example 7 - OK
+    	SearchChannelAndValidateData.executeExample();
     }
 }

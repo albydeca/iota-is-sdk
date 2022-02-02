@@ -12,15 +12,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.github.javafaker.Faker;
-
 import exceptions.InvalidAPIResponseException;
 
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -110,7 +104,7 @@ public class IdentityClient extends BaseClient {
 			throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String endpoint = "identities/identity/" + id;
 		
-		final JSONObject response = sendIOTAGetRequest(endpoint, null, false);
+		final JSONObject response = sendIOTAGetRequest(endpoint, null, true);
 		if (response == null) {return null;}
 		return new IdentityInternal(response);
 	}
@@ -238,6 +232,7 @@ public class IdentityClient extends BaseClient {
 		if(initiator != null) {
 			body.put("initiatorVC", initiator.toJson());
 		}
+			
 		System.out.println(body);
 		
 		JSONObject response = sendIOTAPostRequest(endpoint, body, true);

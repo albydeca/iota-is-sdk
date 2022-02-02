@@ -1,10 +1,5 @@
 package examples;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
 import clients.IdentityClient;
@@ -17,17 +12,7 @@ public class CreateIdentityAndCredential {
 		IdentityClient client = new IdentityClient();
 
 		 // Recover the admin identity
-		InputStream is = new FileInputStream("LogCreator.json");
-        String jsonTxt = IOUtils.toString(is, "UTF-8");
-        System.out.println(jsonTxt);
-        JSONObject json = new JSONObject(jsonTxt);       
- 
-        // Authenticate as the admin identity
-        final String didId = json.getString("ID");
-		client.authenticate(didId, json.getString("PrivateKey"));
-		
-		System.out.println("User authenticated");
-		// Get admin identity data
+		final String didId = Preliminary.authenticateRootIdentity(client);
         IdentityInternal admin = client.find(didId);
         
         if(admin == null) {

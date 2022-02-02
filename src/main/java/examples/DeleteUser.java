@@ -1,14 +1,11 @@
 package examples;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
 import clients.IdentityClient;
@@ -22,14 +19,7 @@ public class DeleteUser {
 	public static void executeExample() throws Exception{
 		IdentityClient client = new IdentityClient();
 
-		InputStream is = new FileInputStream("LogCreator.json");
-        String jsonTxt = IOUtils.toString(is, "UTF-8");
-        System.out.println(jsonTxt);
-        JSONObject json = new JSONObject(jsonTxt);       
- 
-        
-        final String didId = json.getString("ID");
-		client.authenticate(didId, json.getString("PrivateKey"));
+		Preliminary.authenticateRootIdentity(client);
 		
 		System.out.println("User authenticated");
 		
@@ -39,7 +29,7 @@ public class DeleteUser {
         
         Claim claim = new Claim(jsonClaim);
         
-        JSONObject newUserIdentity = client.create(RANDOM_USERNAME_TODELETE, claim);
+        client.create(RANDOM_USERNAME_TODELETE, claim);
         
         Date in = new Date();
         LocalDateTime yesterday = LocalDateTime.ofInstant(in.toInstant(),
@@ -52,9 +42,20 @@ public class DeleteUser {
         List<IdentityInternal> toRevoke = new ArrayList<IdentityInternal>();
         
         if(identities.size() > 0) {
-        	for(int i = 0; i < identities.size(); i++) {
-        		if(!(identities.get(i).getIsServerIdentity().booleanValue())) {
-        			toRevoke.add(identities.get(i));
+        	for(IdentityInternal identity : identities) {
+        		System.out.println(identity);
+        		boolean idToRevoke = false;
+        		
+        		Boolean isServerIdentity = identity.getIsServerIdentity();
+        		
+        		if(isServerIdentity == null) {
+        			idToRevoke = true;
+        		} else {
+        			idToRevoke = !(isServerIdentity.booleanValue());
+        		}
+        		if(idToRevoke) {
+        			System.out.println("identity is to be removed");
+        			toRevoke.add(identity);
         		}
         	}
         	

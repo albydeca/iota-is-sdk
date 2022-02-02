@@ -1,9 +1,5 @@
 package examples;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import clients.IdentityClient;
 import models.types.*;
@@ -13,20 +9,12 @@ public class UpdateUser {
 	public static void executeExample() throws Exception {
 		IdentityClient client = new IdentityClient();
 
-		// Recover the admin identity
-		InputStream is = new FileInputStream("LogCreator.json");
-        String jsonTxt = IOUtils.toString(is, "UTF-8");
-        System.out.println(jsonTxt);
-        JSONObject json = new JSONObject(jsonTxt);       
- 
-        
-        final String didId = json.getString("ID");
-		client.authenticate(didId, json.getString("PrivateKey"));
+		Preliminary.authenticateRootIdentity(client);
 		
 		System.out.println("User authenticated");
 		
 		// Search for identities with username 'User' in it
-		List<IdentityInternal> identities = client.search(null, "randomUsername",
+		List<IdentityInternal> identities = client.search(null, "User",
 				null, null, null);
 		
 		System.out.println("Found the following identities:");

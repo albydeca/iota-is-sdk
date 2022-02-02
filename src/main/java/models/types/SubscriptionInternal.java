@@ -25,7 +25,7 @@ public class SubscriptionInternal extends IOTAAPIDataItem {
 		}
 		
 		this.channelAddress = source.getString("channelAddress");
-		this.id = source.getString("identityId");
+		this.id = source.getString("id");
 		this.state = source.getString("state");
 		
 		try {
@@ -145,7 +145,7 @@ public class SubscriptionInternal extends IOTAAPIDataItem {
 	public JSONObject toJson() {
 		JSONObject result = new JSONObject().put("type", this.type.toString())
 				.put("channelAddress", this.channelAddress)
-				.put("identityId", this.id)
+				.put("id", this.id)
 				.put("state", this.state)
 				.put("isAuthorized", this.isAuthorized)
 				.put("accessRights", this.accessRights.toString());

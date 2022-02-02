@@ -16,7 +16,6 @@ import exceptions.InvalidAPIResponseException;
 
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.List;
@@ -126,8 +125,14 @@ public class ChannelClient extends BaseClient {
 		String endpoint = "channels/logs/" + channelAddress;
 		
         Map<String, String> params = new HashMap<String, String>();
-        params.put("start-date", prepareDateForGetParam(start));
-        params.put("end-date", prepareDateForGetParam(end));
+        
+        if(start != null) {
+        	params.put("start-date", prepareDateForGetParam(start));
+        }
+        
+        if(end != null) {
+        	params.put("end-date", prepareDateForGetParam(end));
+        }
         
         if(limit != null) {
         	params.put("limit", limit.toString());
@@ -441,4 +446,5 @@ public class ChannelClient extends BaseClient {
 		String endpoint = "subscriptions/" + channelAddress + "/" + id;
 		sendIOTADeleteRequestWithAuth(endpoint, null);
 	}
+
 }

@@ -13,15 +13,7 @@ public class TrustedAuthorities {
 	public static void executeExample() throws Exception {
 		IdentityClient client = new IdentityClient();
 
-		// Recover the admin identity
-		InputStream is = new FileInputStream("LogCreator.json");
-        String jsonTxt = IOUtils.toString(is, "UTF-8");
-        System.out.println(jsonTxt);
-        JSONObject json = new JSONObject(jsonTxt);       
- 
-        // Authenticate as the admin identity
-        final String didId = json.getString("ID");
-		client.authenticate(didId, json.getString("PrivateKey"));
+		String didId = Preliminary.authenticateRootIdentity(client);
 		
 		System.out.println("User authenticated");
 		
@@ -59,8 +51,8 @@ public class TrustedAuthorities {
 	   
 	// Verify the drivers license issued by an external authority.
 	   // This drivers license will not be trusted because it was not added as an trusted authority by us.
-	   is = new FileInputStream("data_source/externalDriverCredential1.json");
-	   jsonTxt = IOUtils.toString(is, "UTF-8");
+	   InputStream is = new FileInputStream("data_source/externalDriverCredential1.json");
+	   String jsonTxt = IOUtils.toString(is, "UTF-8");
 	   VerifiableCredential externalCredential = new VerifiableCredential(new JSONObject(jsonTxt));
 	   boolean verified2 = client.checkCredential(externalCredential);
 	   System.out.println("Verified2 external untrusted authority"+ verified2);

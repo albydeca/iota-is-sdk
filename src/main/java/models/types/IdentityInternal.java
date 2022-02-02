@@ -20,6 +20,14 @@ public class IdentityInternal extends IOTAAPIDataItem {
 	private Boolean isServerIdentity;
 	
 
+	@Override
+	public String toString() {
+		return "IdentityInternal [id=" + id + ", publicKey=" + publicKey + ", username=" + username
+				+ ", registrationDate=" + registrationDate + ", verifiableCredentials=" + verifiableCredentials
+				+ ", role=" + role + ", claim=" + claim + ", isPrivate=" + isPrivate + ", isServerIdentity="
+				+ isServerIdentity + "]";
+	}
+
 	public IdentityInternal(JSONObject source) {
 		this.id = source.getString("id");
 		this.publicKey = source.getString("publicKey");

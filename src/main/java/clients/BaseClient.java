@@ -19,6 +19,7 @@ import org.bitcoinj.core.Base58;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +28,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -63,7 +65,10 @@ public class BaseClient {
 					IOException, InvalidAPIResponseException {
 		URIBuilder builder = new URIBuilder(baseUrl+endpoint);
     	builder.setParameter("api-key", apiKey);
-        HttpPost httpPost = new HttpPost(builder.build());
+    	
+    	final URI urlFinal = builder.build();
+        System.out.println("POST "+ urlFinal.toString());
+        HttpPost httpPost = new HttpPost(urlFinal);
 
         StringEntity entity = new StringEntity(body.toString());
         httpPost.setEntity(entity);
@@ -77,7 +82,7 @@ public class BaseClient {
         int statusCode = response.getStatusLine().getStatusCode();
         
         final HttpEntity response_body = response.getEntity();
-        if(statusCode != 200) {
+        if(statusCode != 200 && statusCode != 201) {
         	throw new InvalidAPIResponseException(statusCode + EntityUtils.toString
             		(response_body, StandardCharsets.UTF_8));
         }
@@ -99,7 +104,9 @@ public class BaseClient {
     	}
     	
     	builder.setParameter("api-key", apiKey);
-        HttpGet httpGet = new HttpGet(builder.build());
+        final URI urlFinal = builder.build();
+        System.out.println("GET "+urlFinal.toString());
+		HttpGet httpGet = new HttpGet(urlFinal);
         
         httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
         if(needsBearer && this.jwt != null) {
@@ -145,7 +152,8 @@ public class BaseClient {
     		throws ClientProtocolException, IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
     	CloseableHttpClient client = HttpClients.createDefault();
     	final HttpEntity response_body = sendGetRequest(endpoint, params, withAuth, null, client);
-
+    	if(response_body == null) {return null;}
+    	
         JSONObject result = new JSONObject(EntityUtils.toString
         		(response_body, StandardCharsets.UTF_8));
         client.close();
@@ -235,10 +243,10 @@ public class BaseClient {
         return result;
 	}
 	
-	public void authenticate(String didId, String privateKeyB58)
+	public void authenticate(String didId, String publicKey, String privateKeyB58)
 			throws IOException, CryptoException, URISyntaxException, ParseException, InvalidAPIResponseException {
 		String nonce = createNonce(didId);
-		signNonce(privateKeyB58, nonce, didId);
+		signNonce(privateKeyB58, publicKey, nonce, didId);
 	}
 	
 	private String createNonce(String didId) throws IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
@@ -248,7 +256,7 @@ public class BaseClient {
         return response.getString("nonce");
     }
 	
-	public void signNonce(String privateKey, String nonce, String didId) 
+	public void signNonce(String privateKey, String publicKey, String nonce, String didId) 
 			throws IOException, CryptoException, URISyntaxException, InvalidAPIResponseException {
 
 	    byte[] b58key = Base58.decode(privateKey);    // Decode a base58 key and encode it as hex key
@@ -277,6 +285,20 @@ public class BaseClient {
 	            .put("signedNonce", sign);
 	
 	    JSONObject response = sendIOTAPostRequest(endpoint, json, false);
+	    byte[] b58keyPrimary = Base58.decode(publicKey);
+        String b58keyPrimaryHex = DatatypeConverter.
+        		printHexBinary(b58keyPrimary).toLowerCase();
+        byte[] convert_primarykey = DatatypeConverter.
+        		parseHexBinary(b58keyPrimaryHex);
+
+        Ed25519PublicKeyParameters primaryKeyVerify = 
+        		new Ed25519PublicKeyParameters(convert_primarykey, 0);
+        Signer verifier = new Ed25519Signer();
+        verifier.init(false, primaryKeyVerify);
+        verifier.update(convertNonce, 0, convertNonce.length);
+        boolean verified = verifier.verifySignature(signature);
+
+        System.out.println("Verify Signature: " + verified);
 		this.jwt = response.getString("jwt");
 	
 	}

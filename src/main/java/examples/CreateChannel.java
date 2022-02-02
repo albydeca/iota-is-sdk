@@ -25,10 +25,13 @@ public class CreateChannel {
 		
 		// Authenticate as the user
 		channelClient.authenticate(newUser.getJSONObject("doc").getString("id"),
+				newUser.getJSONObject("key").getString("public"),
 				newUser.getJSONObject("key").getString("secret"));
 		
+		
 		Map<String, String> topics = new HashMap<String, String>();
-		topics.put("example-data", "data-creator");
+		topics.put("type", "example-data");
+		topics.put("source", "data-creator");
 		
 		List<Map<String, String>> allTopics = new ArrayList<Map<String, String>>();
 		allTopics.add(topics);
@@ -41,7 +44,7 @@ public class CreateChannel {
 		System.out.println(channelAddress);
 		
 		// Writing 5 data packets to channel
-		for(int i=0;i<5;i++) {
+		for(int i=0;i<3;i++) {
 			System.out.println("writing data to channel no "+ i);
 			channelClient.write(channelAddress, "log",
 					null, new JSONObject().put("log", "This is log number "+ i));
@@ -52,7 +55,7 @@ public class CreateChannel {
 				null, null, null, null, null);
 		
 		for(ChannelData data: datas) {
-			System.out.println(data.getLog().toString());
+			System.out.println(data.toString());
 		}
 	}
 

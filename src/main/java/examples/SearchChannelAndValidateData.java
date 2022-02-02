@@ -30,6 +30,7 @@ public class SearchChannelAndValidateData {
 		
 		
 		ownerClient.authenticate(channelOwner.getJSONObject("doc").getString("id"),
+				channelOwner.getJSONObject("key").getString("public"),
 				channelOwner.getJSONObject("key").getString("secret"));
 		
 		JSONObject jsonClaim2 =  new JSONObject().put("type", "Person")
@@ -39,10 +40,12 @@ public class SearchChannelAndValidateData {
 		
 		
 		userClient.authenticate(channelUser.getJSONObject("doc").getString("id"),
+				channelUser.getJSONObject("key").getString("public"),
 				channelUser.getJSONObject("key").getString("secret"));
 		
 		Map<String, String> topics = new HashMap<String, String>();
-		topics.put("example-data", "data-creator");
+		topics.put("type", "example-data");
+		topics.put("source", "data-creator");
 		
 		List<Map<String, String>> allTopics = new ArrayList<Map<String, String>>();
 		allTopics.add(topics);
