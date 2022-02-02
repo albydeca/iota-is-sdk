@@ -1,5 +1,7 @@
 package examples;
 
+import java.util.List;
+
 import org.json.JSONObject;
 import clients.IdentityClient;
 import models.types.*;
