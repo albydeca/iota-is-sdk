@@ -45,26 +45,37 @@ import exceptions.InvalidAPIResponseException;
 
 public class BaseClient {
 	
-	private static String apiKey;
-	private static String baseUrl;
-//	private String apiVersion;
+	private String apiKey;
+	private String baseUrl;
+	private String apiVersion;
 	private String jwt;
 	
 	public BaseClient() throws FileNotFoundException, IOException {
 		Properties appProps = new Properties();
 		appProps.load(new FileInputStream("env.properties"));
-		apiKey = appProps.getProperty("api-key");
-		baseUrl = appProps.getProperty("api-url") + 
-				appProps.getProperty("api-version") + "/";
+		this.apiVersion = appProps.getProperty("api-version");
+		this.apiKey = appProps.getProperty("api-key");
+		this.baseUrl = appProps.getProperty("api-url") + apiVersion + "/";
 		this.jwt = null;
 	}
 	
+	
+	
+	public BaseClient(String apiKey, String apiUrl, String apiVersion) {
+		this.apiKey = apiKey;
+		this.apiVersion = apiVersion;
+		this.baseUrl = apiUrl + apiVersion + "/";
+		this.jwt = null;
+	}
+
+
+
 	private HttpEntity sendPostRequest(String endpoint, Object body,
 			CloseableHttpClient client, boolean needsBearer) 
 					throws URISyntaxException, ClientProtocolException, 
 					IOException, InvalidAPIResponseException {
-		URIBuilder builder = new URIBuilder(baseUrl+endpoint);
-    	builder.setParameter("api-key", apiKey);
+		URIBuilder builder = new URIBuilder(this.baseUrl+endpoint);
+    	builder.setParameter("api-key", this.apiKey);
     	
     	final URI urlFinal = builder.build();
         System.out.println("POST "+ urlFinal.toString());
@@ -92,7 +103,7 @@ public class BaseClient {
 	private HttpEntity sendGetRequest(String endpoint, Map<String, String> params,
 			boolean needsBearer, String presharedKey, CloseableHttpClient client) 
 					throws URISyntaxException, ClientProtocolException, IOException, ParseException, InvalidAPIResponseException {
-		URIBuilder builder = new URIBuilder(baseUrl+endpoint);
+		URIBuilder builder = new URIBuilder(this.baseUrl+endpoint);
     	
     	if(params!=null) {
     		for(Map.Entry<String, String> e : params.entrySet()) {
@@ -103,7 +114,7 @@ public class BaseClient {
     		builder.setParameter("preshared-key", presharedKey);
     	}
     	
-    	builder.setParameter("api-key", apiKey);
+    	builder.setParameter("api-key", this.apiKey);
         final URI urlFinal = builder.build();
         System.out.println("GET "+urlFinal.toString());
 		HttpGet httpGet = new HttpGet(urlFinal);
@@ -188,8 +199,8 @@ public class BaseClient {
 	public JSONObject sendIOTAPutRequestWithAuth(String endpoint, JSONObject body)
 			throws URISyntaxException, ClientProtocolException, IOException {
 		CloseableHttpClient client = HttpClients.createDefault();
-    	URIBuilder builder = new URIBuilder(baseUrl+endpoint);
-    	builder.setParameter("api-key", apiKey);
+    	URIBuilder builder = new URIBuilder(this.baseUrl+endpoint);
+    	builder.setParameter("api-key", this.apiKey);
         HttpPut httpPut = new HttpPut(builder.build());
 
         StringEntity entity = new StringEntity(body.toString());
@@ -216,7 +227,7 @@ public class BaseClient {
 			Map<String, String> params) throws JSONException,
 	org.apache.http.ParseException, IOException, URISyntaxException {
 		CloseableHttpClient client = HttpClients.createDefault();
-    	URIBuilder builder = new URIBuilder(baseUrl+endpoint);
+    	URIBuilder builder = new URIBuilder(this.baseUrl+endpoint);
     	
     	if(params!=null) {
     		for(Map.Entry<String, String> e : params.entrySet()) {
@@ -224,7 +235,7 @@ public class BaseClient {
     		}
     	}
     	
-    	builder.setParameter("api-key", apiKey);
+    	builder.setParameter("api-key", this.apiKey);
     	
         HttpDelete httpDelete = new HttpDelete(builder.build());
         
