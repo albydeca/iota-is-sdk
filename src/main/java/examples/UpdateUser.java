@@ -15,8 +15,18 @@ public class UpdateUser {
 		
 		System.out.println("User authenticated");
 		
+		// THE BELOW TO BE DELETED ONCE THE EXAMPLE BEFORE WORKS
+//		JSONObject jsonClaim =  new JSONObject().put("type", "Person")
+//    			.put("name", "randomName");
+//
+//        
+//	    Claim claim = new Claim(jsonClaim);
+//	    
+//	    JSONObject newUserIdentity = client.create("randomUsername", claim);
+//	    System.out.println("created new user " + newUserIdentity);
+	    
 		// Search for identities with username 'User' in it
-		List<IdentityInternal> identities = client.search(null, "User",
+		List<IdentityInternal> identities = client.search(null, "randomUsername",
 				null, null, null);
 		
 		System.out.println("Found the following identities:");

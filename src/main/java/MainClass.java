@@ -6,13 +6,13 @@ public class MainClass {
     		throws Exception {
     	
     	// run example 0 - bug with 500 cannot create credential
-//    	Preliminary.doPrelims();
+    	Preliminary.doPrelims();
     	
     	// run example 1 - bug with "identities/identity/" + id GET returns nothing
 //    	CreateIdentityAndCredential.executeExample();
     	
     	// run example 2 OK
-//    	UpdateUser.executeExample();
+    	UpdateUser.executeExample();
     	
     	// run example 3 OK
 //    	DeleteUser.executeExample();
@@ -27,6 +27,6 @@ public class MainClass {
 //    	AuthorizeToChannel.executeExample();
     	
     	// run example 7 - OK
-    	SearchChannelAndValidateData.executeExample();
+//    	SearchChannelAndValidateData.executeExample();
     }
 }

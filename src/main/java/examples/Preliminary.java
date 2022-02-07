@@ -23,21 +23,7 @@ public class Preliminary {
 		client.createCredential(null, didId,
 				CredentialType.VERIFIED_IDENTITY, new Claim(UserType.SERVICE));
 		System.out.println("created Root Identity");
-//		
-//		IdentityClient client = new IdentityClient();
-//		
-//		InputStream is = new FileInputStream("LogCreator.json");
-//        String jsonTxt = IOUtils.toString(is, "UTF-8");
-//        System.out.println(jsonTxt);
-//        JSONObject json = new JSONObject(jsonTxt);  
-//        
-//        System.out.println("Creating identity "+ jsonTxt);
-//		final String didId = json.getString("ID");
-//		client.authenticate(didId,json.getString("PublicKey"), json.getString("PrivateKey"));
-//		
-//		client.createCredential(null, didId,
-//				CredentialType.VERIFIED_IDENTITY, new Claim(UserType.SERVICE));
-//		System.out.println("created Root Identity");
+
 	}
 
 	public static String authenticateRootIdentity(IdentityClient client) throws IOException, FileNotFoundException,
