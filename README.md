@@ -1,48 +1,52 @@
-# InteractionIOTA
-This package provides a basic java-based interaction mechanism with [IOTA Streams](https://www.iota.org/solutions/streams) 
-[API](https://ensuresec.solutions.iota.org/docs/).
+# IOTA Integration Services Java SDK
+This is the Java SDK for easy usability of the Integration Services API.
 
-With this package, you can learn more about the principal components of Streams, including **Creators**, **Auditors** and **Channels**.
-You can also perform basic tasks such as create and save channels, read and write data to channels, and authenticate to channels.
+## Prerequisites 
 
-We intend this codebase to constitute a building block for other developers to build Java applications on IOTA Streams. To this end,
-we have conveniently wrapped the codebase in a [Maven](https://maven.apache.org/) project. [Gradbase](https://www.gradba.se) are
-using this codebase to create a PubSub system for COVID-19 EU GreenPass verification keys.
+* JDK 16 (recommended)
+* A reference to an instance of the [Integration Services API](https://github.com/iotaledger/integration-services)
+* Maven
+
+## [Examples](https://github.com/albydeca/InteractionIOTA/tree/main/src/main/java/examples)
 
 ## Getting Started
-To make the most of the full feature set, please add the following two folders to the root of the project:
+Please set up the following files in order to run the code locally:
 
-- `persistent_channels/` - this will contain JSON files that map `LogCreator`s to `Channel`s (one-to-one)
-- `data_source/` - will contain the data files (JSON format) to upload to the channel
+- `env.properties` - with the following structure:
+  ```
+  api-key=XXXXXXX
+  api-version=vX.X
+  api-url=XXXXXXX
+  identity-file=adminIdentity.json
+- `adminIdentity.json` - will contain the admin identity object (json file with elements `doc` and `key`)
 
 Then, perform the following steps:
 ```angular2html
 mvn install
 mvn compile
 ```
-You are now ready to run the `MainClass`:
-`java -Dapi-key=<<your-iotastreams-api-key>> -Ddata-filepath=<<data_source/XXX.json>> -Dpersist_channel=<<true/false>> MainClass`
+You are now ready to run the `MainClass` from the root dir:
+`java MainClass.java`
 
-### A note on arguments
-- `data-filepath` can be either absolute or relative and must reference a JSON file. JSON arrays are not yet supported in
-IOTA Streams.
-  
-- `persist-channel` will make sure that the channel ID created by a given `LogCreator` will get saved to a file for future
-usage, and will load and use such an ID from file if one has been previously saved for a given `LogCreator`. If this flag
-  is set to `false`, neither of these behaviours occur. Instead, a session-specific channel is created and its ID does not gets
-  saved anywhere. At the moment, the repo supports one ID per `LogCreator` saved in a JSON file.
+This is configured to run the entirety of the examples (which can be seen as a "light" form of test cases) in the
+suggested order. One can comment and uncomment as appropriate. We may look at making this process of running the examples
+more mature in the future.
+
+The examples follow the exact logics of the Node.js library. Therefore, you can click on the "Examples" link above to
+learn more.
   
 ## Extending this codebase
 We have kept this codebase as small and general-purpose as possible, wrapping it in a Maven project to facilitate the
-creation of JAR files and libraries. For example, extensions to this primitive behaviour could be:
-- Hook this codebase to a database backend to persist state
-- Write unit tests (planned)
-- Write methods to renew JWT upon expiry (planned). At the moment, one JWT per connection to the channel is created. This is
-  inefficient and not suitable for high-performance applications.
-- Create a JAR library to provide a code library that is agnostic to the backend used to store state.
+creation of JAR files and libraries. Below are suggested extensions that the Integration Services team and/or future maintainers
+could consider implementing:
+- Hook this codebase to a MongoDB instance as per the [Node.js](https://github.com/iotaledger/integration-services/tree/master/clients/node) implementation
+- Write unit tests
+- Push to MVNRepository
+- Gradle support
 
 ## Authors
 - Lead developer: Giulio Casarotti [[GitHub](https://github.com/tulio98), [Email](mailto:876589@stud.unive.it)]
 - Project Owner & Maintainer: Alberto De Capitani [[GitHub](https://github.com/albydeca), [Email](mailto:alberto.de-capitani@gradba.se)]
 
-Special thanks to [Michele Nati](https://www.linkedin.com/in/michelenati) and [Dominic Zettl](https://www.linkedin.com/in/dominic-zettl-35720310a) for their precious contributions.
+Special thanks to [Michele Nati](https://www.linkedin.com/in/michelenati),  [Dominic Zettl](https://www.linkedin.com/in/dominic-zettl-35720310a)
+and [Michele Mastrogiovanni](https://www.linkedin.com/in/michele-mastrogiovanni/) for their precious contributions.
