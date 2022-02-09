@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IdentityInternal extends IOTAAPIDataItem {
-	
+
 	private String id;
 	private String publicKey;
 	private String username;
@@ -18,7 +18,6 @@ public class IdentityInternal extends IOTAAPIDataItem {
 	private UserType claim;
 	private Boolean isPrivate;
 	private Boolean isServerIdentity;
-	
 
 	@Override
 	public String toString() {
@@ -31,40 +30,40 @@ public class IdentityInternal extends IOTAAPIDataItem {
 	public IdentityInternal(JSONObject source) {
 		this.id = source.getString("id");
 		this.publicKey = source.getString("publicKey");
-		
+
 		try {
 			this.username = source.getString("username");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.username = null;
 		}
-		
+
 		try {
 			this.registrationDate = source.getString("registrationDate");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.registrationDate = null;
 		}
-		
+
 		try {
 			this.verifiableCredentials = new ArrayList<VerifiableCredential>();
 			JSONArray creds = source.getJSONArray("verifiableCredentials");
-			for(int i = 0; i < creds.length(); i++){
+			for (int i = 0; i < creds.length(); i++) {
 				JSONObject o = creds.getJSONObject(i);
 				VerifiableCredential ct = new VerifiableCredential(o);
 				this.verifiableCredentials.add(ct);
 			}
-			
-		} catch(JSONException ex) {
+
+		} catch (JSONException ex) {
 			this.verifiableCredentials = null;
 		}
-		
+
 		try {
 			this.role = source.getString("role");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.role = null;
 		}
-		
+
 		try {
-			switch(source.getJSONObject("claim").getString("type")) {
+			switch (source.getJSONObject("claim").getString("type")) {
 			case "Person":
 				this.claim = UserType.PERSON;
 			case "Service":
@@ -77,21 +76,21 @@ public class IdentityInternal extends IOTAAPIDataItem {
 				this.claim = UserType.PRODUCT;
 			default:
 				this.claim = UserType.OTHER;
-			
+
 			}
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.claim = null;
 		}
-		
+
 		try {
 			this.isPrivate = source.getBoolean("isPrivate");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.isPrivate = null;
 		}
-		
+
 		try {
 			this.isServerIdentity = source.getBoolean("isServerIdentity");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.isServerIdentity = null;
 		}
 	}
@@ -149,41 +148,40 @@ public class IdentityInternal extends IOTAAPIDataItem {
 
 	@Override
 	public JSONObject toJson() {
-		JSONObject result = new JSONObject().put("id", this.id)
-				.put("publicKey", this.publicKey);
-		
-		if(this.username != null) {
+		JSONObject result = new JSONObject().put("id", this.id).put("publicKey", this.publicKey);
+
+		if (this.username != null) {
 			result.put("username", this.username);
 		}
-		
-		if(this.registrationDate != null) {
+
+		if (this.registrationDate != null) {
 			result.put("registrationDate", this.registrationDate);
 		}
-		
-		if(this.verifiableCredentials != null) {
+
+		if (this.verifiableCredentials != null) {
 			JSONArray creds = new JSONArray();
-			for(VerifiableCredential ct : this.verifiableCredentials) {
+			for (VerifiableCredential ct : this.verifiableCredentials) {
 				creds.put(ct.toJson());
 			}
 			result.put("verifiableCredentials", creds);
 		}
 
-		if(this.role != null) {
+		if (this.role != null) {
 			result.put("role", this.role);
 		}
-		
-		if(this.claim != null) {
+
+		if (this.claim != null) {
 			result.put("claim", new JSONObject().put("type", this.claim));
-		}	
-		
-		if(this.isPrivate != null) {
+		}
+
+		if (this.isPrivate != null) {
 			result.put("isPrivate", this.isPrivate);
 		}
-		
-		if(this.isServerIdentity != null) {
+
+		if (this.isServerIdentity != null) {
 			result.put("isServerIdentity", this.isServerIdentity);
 		}
-		
+
 		return result;
 	}
 }

@@ -17,26 +17,26 @@ public class SubscriptionInternal extends IOTAAPIDataItem {
 	private String pskId;
 
 	public SubscriptionInternal(JSONObject source) {
-		switch(source.getString("type")) {
+		switch (source.getString("type")) {
 		case "Author":
 			this.type = SubscriptionType.AUTHOR;
 		case "Subscriber":
 			this.type = SubscriptionType.SUBSCRIBER;
 		}
-		
+
 		this.channelAddress = source.getString("channelAddress");
 		this.id = source.getString("id");
 		this.state = source.getString("state");
-		
+
 		try {
 			this.subscriptionLink = source.getString("subscriptionLink");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.subscriptionLink = null;
 		}
-		
+
 		this.isAuthorized = source.getBoolean("isAuthorized");
-		
-		switch(source.getString("accessRights")) {
+
+		switch (source.getString("accessRights")) {
 		case "Audit":
 			this.accessRights = AccessRights.AUDIT;
 		case "Read":
@@ -46,28 +46,28 @@ public class SubscriptionInternal extends IOTAAPIDataItem {
 		case "ReadAndWrite":
 			this.accessRights = AccessRights.READ_AND_WRITE;
 		}
-		
+
 		try {
 			this.publicKey = source.getString("publicKey");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.publicKey = null;
 		}
-		
+
 		try {
 			this.keyloadLink = source.getString("keyloadLink");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.keyloadLink = null;
 		}
-		
+
 		try {
 			this.sequenceLink = source.getString("sequenceLink");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.sequenceLink = null;
 		}
-		
+
 		try {
 			this.pskId = source.getString("pskId");
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.pskId = null;
 		}
 	}
@@ -132,7 +132,7 @@ public class SubscriptionInternal extends IOTAAPIDataItem {
 	public String getPskId() {
 		return pskId;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "SubscriptionInternal [type=" + type + ", channelAddress=" + channelAddress + ", id=" + id + ", state="
@@ -144,33 +144,30 @@ public class SubscriptionInternal extends IOTAAPIDataItem {
 	@Override
 	public JSONObject toJson() {
 		JSONObject result = new JSONObject().put("type", this.type.toString())
-				.put("channelAddress", this.channelAddress)
-				.put("id", this.id)
-				.put("state", this.state)
-				.put("isAuthorized", this.isAuthorized)
-				.put("accessRights", this.accessRights.toString());
-		
-		if(this.subscriptionLink != null) {
+				.put("channelAddress", this.channelAddress).put("id", this.id).put("state", this.state)
+				.put("isAuthorized", this.isAuthorized).put("accessRights", this.accessRights.toString());
+
+		if (this.subscriptionLink != null) {
 			result.put("subscriptionLink", this.subscriptionLink);
 		}
-		
-		if(this.publicKey != null) {
+
+		if (this.publicKey != null) {
 			result.put("publicKey", this.publicKey);
 		}
-		
-		if(this.keyloadLink != null) {
+
+		if (this.keyloadLink != null) {
 			result.put("keyloadLink", this.keyloadLink);
 		}
-		
-		if(this.sequenceLink != null) {
+
+		if (this.sequenceLink != null) {
 			result.put("sequenceLink", this.sequenceLink);
 		}
-		
-		if(this.pskId != null) {
+
+		if (this.pskId != null) {
 			result.put("pskId", this.pskId);
 		}
-		
+
 		return result;
 	}
-	
+
 }

@@ -3,7 +3,7 @@ package models.types;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-//CLAIM EXAMPLES SHOWN HERE:
+//CLAIM EXAMPLES SHOWN HERE ("claim" entries):
 //JSONObject jsonDevice = new JSONObject()
 //.put("username", "foobarbaz")
 //.put("claim", new JSONObject().put("type", "Device")
@@ -31,13 +31,12 @@ import org.json.JSONObject;
 public class Claim extends IOTAAPIDataItem {
 	private UserType type;
 	private JSONObject body;
-	
-	
+
 	public Claim(JSONObject source) {
 		this.body = source;
-		
+
 		try {
-			switch(source.getString("type")) {
+			switch (source.getString("type")) {
 			case "Person":
 				this.type = UserType.PERSON;
 			case "Service":
@@ -50,13 +49,13 @@ public class Claim extends IOTAAPIDataItem {
 				this.type = UserType.PRODUCT;
 			default:
 				this.type = UserType.OTHER;
-			
+
 			}
-		} catch(JSONException ex) {
+		} catch (JSONException ex) {
 			this.type = null;
 		}
 	}
-	
+
 	public Claim(UserType type) {
 		this.type = type;
 		this.body = new JSONObject().put("type", type.toString());
@@ -66,13 +65,14 @@ public class Claim extends IOTAAPIDataItem {
 		return type;
 	}
 
-
-
 	public JSONObject getBody() {
 		return body;
 	}
 
-
+	@Override
+	public String toString() {
+		return "Claim [type=" + type + ", body=" + body + "]";
+	}
 
 	public JSONObject toJson() {
 		return body;

@@ -21,7 +21,9 @@ public class CreateChannel {
 		JSONObject jsonClaim =  new JSONObject().put("type", "Person")
     			.put("name", "Driver Bob");
 		
-		JSONObject newUser = identityClient.create("ChannelOwner", new Claim(jsonClaim));
+		final String randomUsername = Utils.getRandomUsernameOfLength(5);
+	    System.out.println("username: "+ randomUsername);
+		JSONObject newUser = identityClient.create(randomUsername, new Claim(jsonClaim));
 		
 		// Authenticate as the user
 		channelClient.authenticate(newUser.getJSONObject("doc").getString("id"),
