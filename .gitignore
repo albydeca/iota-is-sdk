@@ -21,3 +21,5 @@ LogCreator.json
 .project
 .settings/*
 /target/
+InteractionIOTA.iml
+examples/target/*
