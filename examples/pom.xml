@@ -5,19 +5,30 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.gradbase</groupId>
-    <artifactId>iota.is.sdk</artifactId>
+    <artifactId>examples</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
     <dependencies>
+
+        <dependency>
+            <groupId>net.gradbase</groupId>
+            <artifactId>iota.is.sdk</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>/home/app/target/iota.is.sdk-0.0.1-SNAPSHOT.jar</systemPath>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.13</version>
         </dependency>
+
         <dependency>
-    <groupId>org.apache.directory.studio</groupId>
-    <artifactId>org.apache.commons.io</artifactId>
-    <version>2.4</version>
-    </dependency>
+            <groupId>org.apache.directory.studio</groupId>
+            <artifactId>org.apache.commons.io</artifactId>
+            <version>2.4</version>
+        </dependency>
         
         <dependency>
             <groupId>junit</groupId>
@@ -57,9 +68,39 @@
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
         </dependency>
-
-
     </dependencies>
+
+    <build>
+        <plugins>
+        <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <configuration>
+          <includeProjectDependencies>true</includeProjectDependencies>
+          <includePluginDependencies>true</includePluginDependencies>
+          <!--
+          <executableDependency>
+            <groupId>com.example.myproject</groupId>
+            <artifactId>mylib</artifactId>
+          </executableDependency>
+          -->
+          <!--
+          <mainClass>com.example.Main</mainClass>
+          -->
+        </configuration>
+        <dependencies>
+          <dependency>
+                <groupId>net.gradbase</groupId>
+                <artifactId>iota.is.sdk</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <scope>system</scope>
+                <systemPath>/home/app/target/iota.is.sdk-0.0.1-SNAPSHOT.jar</systemPath>
+          </dependency>
+        </dependencies>
+      </plugin>
+        </plugins>
+    </build>
 
     <properties>
         <maven.compiler.source>16</maven.compiler.source>
@@ -67,3 +108,5 @@
     </properties>
 
 </project>
+
+
