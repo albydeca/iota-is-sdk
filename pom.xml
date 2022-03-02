@@ -7,6 +7,15 @@
     <groupId>net.gradbase</groupId>
     <artifactId>iota.is.sdk</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
+    <distributionManagement>
+        <repository>
+        <id>ossrh</id>
+        <name>Central Repository OSSRH</name>
+        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
