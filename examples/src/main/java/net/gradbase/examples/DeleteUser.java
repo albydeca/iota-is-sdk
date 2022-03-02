@@ -17,7 +17,7 @@ public class DeleteUser {
 	public static void main(String args[]) throws Exception {
 		IdentityClient client = new IdentityClient();
 
-		Preliminary.authenticateRootIdentity(client);
+		AddAsRootIdentity.authenticateRootIdentity(client);
 
 		System.out.println("User authenticated");
 

@@ -15,7 +15,7 @@ import net.gradbase.clients.IdentityClient;
 import net.gradbase.exceptions.InvalidAPIResponseException;
 import net.gradbase.models.types.*;
 
-public class Preliminary {
+public class AddAsRootIdentity {
 
 	public static void main(String args[]) throws Exception {
 		IdentityClient client = new IdentityClient();

@@ -13,7 +13,7 @@ public class CreateIdentityAndCredential {
 		IdentityClient client = new IdentityClient();
 
 		// Recover the admin identity
-		final String didId = Preliminary.authenticateRootIdentity(client);
+		final String didId = AddAsRootIdentity.authenticateRootIdentity(client);
 		IdentityInternal admin = client.find(didId);
 
 		if (admin == null) {

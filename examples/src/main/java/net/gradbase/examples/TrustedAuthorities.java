@@ -16,7 +16,7 @@ public class TrustedAuthorities {
 	public static void main(String args[]) throws Exception {
 		IdentityClient client = new IdentityClient();
 
-		String didId = Preliminary.authenticateRootIdentity(client);
+		String didId = AddAsRootIdentity.authenticateRootIdentity(client);
 
 		System.out.println("User authenticated");
 
