@@ -7,10 +7,10 @@ This is the Java SDK for easy usability of the Integration Services API.
 * A reference to an instance of the [Integration Services API](https://github.com/iotaledger/integration-services)
 * Maven
 
-## [Examples](https://github.com/albydeca/InteractionIOTA/tree/main/src/main/java/examples)
+## [Examples](https://github.com/albydeca/iota-is-sdk/tree/main/examples)
 
 ## Getting Started
-Please set up the following files in order to run the code locally:
+Please set up the following files in order to generate the JAR and run the code locally:
 
 - `env.properties` - with the following structure:
   ```
@@ -22,18 +22,17 @@ Please set up the following files in order to run the code locally:
 
 Then, perform the following steps:
 ```angular2html
-mvn install
-mvn compile
+mvn clean install
 ```
-You are now ready to run the `MainClass` from the root dir:
-`java MainClass.java`
+You are now ready to use the JAR and access the classes. Please remember to keep the `env.properties` in the same folder as the JAR.
+The JAR can be used as a dependency to run the examples, which, contrary to the node implementation, exist as part of their own package
+which depends on this project's JAR (see `examples/pom.xml`)
 
-This is configured to run the entirety of the examples (which can be seen as a "light" form of test cases) in the
-suggested order. One can comment and uncomment as appropriate. We may look at making this process of running the examples
-more mature in the future.
+The IOTA Foundation has created a handy [wiki](https://wiki.iota.org/integration-services/welcome) to help you better understand
+the platform's characteristics and usage. A Java-specific section is coming soon. In the meantime, please refer to the
+[node](https://wiki.iota.org/integration-services/examples/introduction) section.
 
-The examples follow the exact logics of the Node.js library. Therefore, you can click on the "Examples" link above to
-learn more.
+A basic `Dockerfile` has been provided to help you run this code in its own container.
   
 ## Extending this codebase
 We have kept this codebase as small and general-purpose as possible, wrapping it in a Maven project to facilitate the
@@ -41,12 +40,12 @@ creation of JAR files and libraries. Below are suggested extensions that the Int
 could consider implementing:
 - Hook this codebase to a MongoDB instance as per the [Node.js](https://github.com/iotaledger/integration-services/tree/master/clients/node) implementation
 - Write unit tests
-- Push to MVNRepository
 - Gradle support
 
 ## Authors
-- Lead developer: Giulio Casarotti [[GitHub](https://github.com/tulio98), [Email](mailto:876589@stud.unive.it)]
 - Project Owner & Maintainer: Alberto De Capitani [[GitHub](https://github.com/albydeca), [Email](mailto:alberto.de-capitani@gradba.se)]
+- Lead developer: Giulio Casarotti [[GitHub](https://github.com/tulio98), [Email](mailto:876589@stud.unive.it)]
+
 
 Special thanks to [Michele Nati](https://www.linkedin.com/in/michelenati),  [Dominic Zettl](https://www.linkedin.com/in/dominic-zettl-35720310a)
 and [Michele Mastrogiovanni](https://www.linkedin.com/in/michele-mastrogiovanni/) for their precious contributions.
