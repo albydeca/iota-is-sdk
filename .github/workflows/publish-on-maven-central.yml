@@ -1,9 +1,8 @@
 name: Publish package to the Maven Central Repository
 
 on:
-  push:
-    branches:
-      - 'main'
+  release:
+    types: [created]
 
   workflow_dispatch:
 
@@ -26,3 +25,13 @@ jobs:
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+
+      - name: Set up Java for publishing to GitHub Packages
+        uses: actions/setup-java@v2
+        with:
+          java-version: '16'
+          distribution: 'adopt'
+      - name: Publish to GitHub Packages
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
