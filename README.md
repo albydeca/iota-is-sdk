@@ -1,5 +1,5 @@
 # IOTA Integration Services Java SDK
-This is the Java SDK for easy usability of the Integration Services API.
+This is the Java SDK for easy usability of the [Integration Services API](https://wiki.iota.org/integration-services/welcome).
 
 ## Prerequisites 
 
