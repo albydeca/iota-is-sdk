@@ -6,7 +6,7 @@
 
     <groupId>net.gradbase</groupId>
     <artifactId>iota.is.sdk</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <name>iota-is-sdk</name>
     <description>This is the Java SDK for easy usability of the IOTA Integration Services API.</description>
@@ -22,13 +22,13 @@
     <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
   </repository>
 </distributionManagement>
-<distributionManagement>
-    <repository>
-      <id>github</id>
-      <name>GitHub Packages</name>
-      <url>https://maven.pkg.github.com/albydeca/iota-is-sdk</url>
-    </repository>
-  </distributionManagement>
+<!--<distributionManagement>-->
+<!--    <repository>-->
+<!--      <id>github</id>-->
+<!--      <name>GitHub Packages</name>-->
+<!--      <url>https://maven.pkg.github.com/albydeca/iota-is-sdk</url>-->
+<!--    </repository>-->
+<!--  </distributionManagement>-->
 
 
     <dependencies>
