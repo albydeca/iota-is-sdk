@@ -8,11 +8,15 @@
     <artifactId>iota.is.sdk</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
+    <name>iota-is-sdk</name>
+    <description>This is the Java SDK for easy usability of the IOTA Integration Services API.</description>
+    <url>https://github.com/albydeca/iota-is-sdk/</url>
+
     <distributionManagement>
         <repository>
-        <id>ossrh</id>
-        <name>Central Repository OSSRH</name>
-        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>ossrh</id>
+            <name>Central Repository OSSRH</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
@@ -23,11 +27,11 @@
             <version>4.5.13</version>
         </dependency>
         <dependency>
-    <groupId>org.apache.directory.studio</groupId>
-    <artifactId>org.apache.commons.io</artifactId>
-    <version>2.4</version>
-    </dependency>
-        
+            <groupId>org.apache.directory.studio</groupId>
+            <artifactId>org.apache.commons.io</artifactId>
+            <version>2.4</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -74,5 +78,36 @@
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
     </properties>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+
+        <developer>
+            <name>Alberto De Capitani</name>
+            <email>alberto.de-capitani@gradba.se</email>
+            <organization>Gradbase Ltd</organization>
+            <organizationUrl>https://www.gradba.se</organizationUrl>
+        </developer>
+
+        <developer>
+            <name>Giulio Casarotti</name>
+            <email>876589@stud.unive.it</email>
+            <organization>Università Ca'Foscari, Venezia</organization>
+            <organizationUrl>https://www.unive.it</organizationUrl>
+        </developer>
+
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/albydeca/iota-is-sdk.git</connection>
+        <developerConnection>scm:git:ssh://github.com:albydeca/iota-is-sdk.git</developerConnection>
+        <url>https://github.com/albydeca/iota-is-sdk/tree/main</url>
+    </scm>
 
 </project>
