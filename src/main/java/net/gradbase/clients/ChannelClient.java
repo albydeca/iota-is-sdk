@@ -33,13 +33,12 @@ public class ChannelClient extends BaseClient {
 	 * Create a new channel. An author can create a new channel with specific topics
 	 * where other clients can subscribe to.
 	 * 
-	 * @param SubscriptionPassword
+	 * @param subscriptionPassword
 	 * @param topics
 	 * @param hasPresharedKey
 	 * @param seed
 	 * @param presharedKey
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public JSONObject create(String subscriptionPassword, List<Map<String, String>> topics, Boolean hasPresharedKey,
 			String seed, String presharedKey)
@@ -84,7 +83,6 @@ public class ChannelClient extends BaseClient {
 	 * @param metadata
 	 * @param payload
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public ChannelData write(String channelAddress, String type, String metadata, JSONObject payload)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -118,7 +116,6 @@ public class ChannelClient extends BaseClient {
 	 * @param end
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
 	 */
 	public List<ChannelData> read(String channelAddress, Integer limit, Integer index, Boolean asc, Date start,
 			Date end) throws ClientProtocolException, IOException, URISyntaxException, ParseException,
@@ -166,7 +163,6 @@ public class ChannelClient extends BaseClient {
 	 * @param presharedKey
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
 	 */
 	public List<ChannelData> readHistory(String channelAddress, String presharedKey) throws ClientProtocolException,
 			URISyntaxException, IOException, ParseException, InvalidAPIResponseException {
@@ -188,7 +184,6 @@ public class ChannelClient extends BaseClient {
 	 * @param channelAddress
 	 * @param datas
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public JSONArray validate(String channelAddress, List<ChannelData> datas)
 			throws ClientProtocolException, URISyntaxException, IOException, InvalidAPIResponseException {
@@ -209,7 +204,6 @@ public class ChannelClient extends BaseClient {
 	 * @param channelAddress
 	 * @param body
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public void reimport(String channelAddress, JSONObject body)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -221,14 +215,15 @@ public class ChannelClient extends BaseClient {
 	 * interested in.
 	 * 
 	 * @param author
-	 * @param topic
+	 * @param authorId
+	 * @param topicType
+	 * @param topicSource
 	 * @param created
 	 * @param latestMessage
 	 * @param limit
 	 * @param index
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
 	 */
 	public List<ChannelInfo> search(String author, String authorId, String topicType, String topicSource, Date created,
 			Date latestMessage, Integer limit, Integer index) throws ClientProtocolException, IOException,
@@ -286,7 +281,6 @@ public class ChannelClient extends BaseClient {
 	 * @param channelAddress
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
 	 */
 	public ChannelInfo info(String channelAddress) throws ClientProtocolException, IOException, URISyntaxException,
 			ParseException, InvalidAPIResponseException {
@@ -305,7 +299,6 @@ public class ChannelClient extends BaseClient {
 	 * 
 	 * @param info
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public void add(ChannelInfo info)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -318,7 +311,6 @@ public class ChannelClient extends BaseClient {
 	 * channel.
 	 * 
 	 * @param info
-	 * @returns
 	 */
 	public void update(ChannelInfo info) throws ClientProtocolException, URISyntaxException, IOException {
 		String endpoint = "channel-info/channel";
@@ -328,13 +320,12 @@ public class ChannelClient extends BaseClient {
 	/**
 	 * Delete information of a channel with address channel-address. The author of a
 	 * channel can delete its entry in the database. In this case all subscriptions
-	 * will be deleted and the channel won�t be found in the system anymore. The
-	 * data & channel won�t be deleted from the IOTA Tangle since its data is
+	 * will be deleted and the channel will not be found in the system anymore. The
+	 * data and channel will not be deleted from the IOTA Tangle since its data is
 	 * immutable on the tangle!
 	 * 
 	 * @param channelAddress
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public void remove(String channelAddress)
 			throws JSONException, ParseException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -350,7 +341,6 @@ public class ChannelClient extends BaseClient {
 	 * @param isAuthorized
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
 	 */
 	public List<SubscriptionInternal> findAllSubscriptions(String channelAddress, Boolean isAuthorized)
 			throws ClientProtocolException, IOException, URISyntaxException, ParseException,
@@ -381,7 +371,6 @@ public class ChannelClient extends BaseClient {
 	 * @param id
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
 	 */
 	public SubscriptionInternal findSubscription(String channelAddress, String id) throws ClientProtocolException,
 			IOException, URISyntaxException, ParseException, InvalidAPIResponseException {
@@ -400,7 +389,6 @@ public class ChannelClient extends BaseClient {
 	 * @param channelAddress
 	 * @param options
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public JSONObject requestSubscription(String channelAddress, JSONObject options)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -417,7 +405,6 @@ public class ChannelClient extends BaseClient {
 	 * @param channelAddress
 	 * @param subId
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public JSONObject authorizeSubscription(String channelAddress, JSONObject subId)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -433,7 +420,6 @@ public class ChannelClient extends BaseClient {
 	 * @param channelAddress
 	 * @param subId
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public void revokeSubscription(String channelAddress, JSONObject subId)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -450,7 +436,6 @@ public class ChannelClient extends BaseClient {
 	 * @param id
 	 * @param sub
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public SubscriptionInternal addSubscription(String channelAddress, String id, SubscriptionInternal sub)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -468,7 +453,6 @@ public class ChannelClient extends BaseClient {
 	 * @param channelAddress
 	 * @param id
 	 * @param updatedSub
-	 * @returns
 	 */
 	public void updateSubscription(String channelAddress, String id, JSONObject updatedSub)
 			throws ClientProtocolException, URISyntaxException, IOException {
@@ -482,7 +466,6 @@ public class ChannelClient extends BaseClient {
 	 * @param channelAddress
 	 * @param id
 	 * @throws InvalidAPIResponseException
-	 * @returns
 	 */
 	public void removeSubscription(String channelAddress, String id)
 			throws JSONException, ParseException, IOException, URISyntaxException, InvalidAPIResponseException {

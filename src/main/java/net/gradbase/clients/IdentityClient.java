@@ -36,7 +36,7 @@ public class IdentityClient extends BaseClient {
 	 * @param username
 	 * @param claim
 	 * @throws InvalidAPIResponseException
-	 * @returns
+	 *
 	 */
 	public JSONObject create(String username, Claim claim)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -57,7 +57,7 @@ public class IdentityClient extends BaseClient {
 	 * @param index
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
+	 *
 	 */
 	public List<IdentityInternal> search(String type, String username, Date registrationDate, Integer limit,
 			Integer index) throws ClientProtocolException, IOException, URISyntaxException, ParseException,
@@ -104,7 +104,7 @@ public class IdentityClient extends BaseClient {
 	 * @param id
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
+	 *
 	 */
 	public IdentityInternal find(String id) throws ClientProtocolException, IOException, URISyntaxException,
 			ParseException, InvalidAPIResponseException {
@@ -125,7 +125,7 @@ public class IdentityClient extends BaseClient {
 	 * 
 	 * @param identity
 	 * @throws InvalidAPIResponseException
-	 * @returns
+	 *
 	 */
 	public void add(IdentityInternal identity)
 			throws ClientProtocolException, URISyntaxException, IOException, InvalidAPIResponseException {
@@ -137,7 +137,7 @@ public class IdentityClient extends BaseClient {
 	 * Update claim of a registered identity.
 	 * 
 	 * @param identity
-	 * @returns
+	 *
 	 */
 	public void update(IdentityInternal identity) throws ClientProtocolException, URISyntaxException, IOException {
 		String endpoint = "identities/identity";
@@ -154,7 +154,6 @@ public class IdentityClient extends BaseClient {
 	 * @param id
 	 * @param revokeCredentials
 	 * @throws InvalidAPIResponseException
-	 * @returns Null
 	 */
 	public void remove(String id, Boolean revokeCredentials)
 			throws JSONException, ParseException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -174,7 +173,7 @@ public class IdentityClient extends BaseClient {
 	 * @param id
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
+	 *
 	 */
 	public JSONObject latestDocument(String id) throws ClientProtocolException, IOException, URISyntaxException,
 			ParseException, InvalidAPIResponseException {
@@ -191,7 +190,7 @@ public class IdentityClient extends BaseClient {
 	 * 
 	 * @param trustedRootId
 	 * @throws InvalidAPIResponseException
-	 * @returns
+	 *
 	 */
 	public void addTrustedAuthority(String trustedRootId)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -209,7 +208,7 @@ public class IdentityClient extends BaseClient {
 	 * 
 	 * @throws InvalidAPIResponseException
 	 * @throws ParseException
-	 * @returns
+	 *
 	 */
 	public List<String> getTrustedAuthorities() throws ClientProtocolException, IOException, URISyntaxException,
 			ParseException, InvalidAPIResponseException {
@@ -234,7 +233,7 @@ public class IdentityClient extends BaseClient {
 	 * 
 	 * @param trustedId
 	 * @throws InvalidAPIResponseException
-	 * @returns
+	 *
 	 */
 	public void removeTrustedAuthority(String trustedId)
 			throws ParseException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -256,7 +255,7 @@ public class IdentityClient extends BaseClient {
 	 * @param credType
 	 * @param claim
 	 * @throws InvalidAPIResponseException
-	 * @returns
+	 *
 	 */
 	public VerifiableCredential createCredential(VerifiableCredential initiator, String targetDid,
 			CredentialType credType, Claim claim)
@@ -289,7 +288,7 @@ public class IdentityClient extends BaseClient {
 	 * 
 	 * @param credential
 	 * @throws InvalidAPIResponseException
-	 * @returns
+	 *
 	 */
 	public boolean checkCredential(VerifiableCredential credential)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
@@ -307,7 +306,7 @@ public class IdentityClient extends BaseClient {
 	 * 
 	 * @param signatureValue
 	 * @throws InvalidAPIResponseException
-	 * @returns
+	 *
 	 */
 	public void revokeCredential(String signatureValue)
 			throws ClientProtocolException, IOException, URISyntaxException, InvalidAPIResponseException {
