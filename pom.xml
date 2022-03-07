@@ -6,7 +6,7 @@
 
     <groupId>net.gradbase</groupId>
     <artifactId>iota.is.sdk</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.1</version>
 
     <name>iota-is-sdk</name>
     <description>This is the Java SDK for easy usability of the IOTA Integration Services API.</description>
