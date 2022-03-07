@@ -13,49 +13,49 @@
     <url>https://github.com/albydeca/iota-is-sdk/</url>
 
     <distributionManagement>
-  <snapshotRepository>
-    <id>ossrh</id>
-    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-  </snapshotRepository>
-  <repository>
-    <id>ossrh</id>
-    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-  </repository>
-</distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
-    <configuration>
-  <!-- Prevent gpg from using pinentry programs -->
-  <gpgArguments>
-    <arg>--pinentry-mode</arg>
-    <arg>loopback</arg>
-  </gpgArguments>
-</configuration>
 
-      <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.0.1</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-<!--<distributionManagement>-->
-<!--    <repository>-->
-<!--      <id>github</id>-->
-<!--      <name>GitHub Packages</name>-->
-<!--      <url>https://maven.pkg.github.com/albydeca/iota-is-sdk</url>-->
-<!--    </repository>-->
-<!--  </distributionManagement>-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <!-- Prevent gpg from using pinentry programs -->
+                    <gpgArguments>
+                        <arg>--pinentry-mode</arg>
+                        <arg>loopback</arg>
+                    </gpgArguments>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <!--<distributionManagement>-->
+    <!--    <repository>-->
+    <!--      <id>github</id>-->
+    <!--      <name>GitHub Packages</name>-->
+    <!--      <url>https://maven.pkg.github.com/albydeca/iota-is-sdk</url>-->
+    <!--    </repository>-->
+    <!--  </distributionManagement>-->
 
 
     <dependencies>
